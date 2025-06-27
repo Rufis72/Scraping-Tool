@@ -92,6 +92,9 @@ class Chapter:
             if show_updates_in_terminal:
                 print(f'\r{self.url}: Image {i+1}/{len(img_urls)}', end='')
 
+        # here we print the same text we already printed to show that the chapter's downloaded, but with \n at the end to stop the output becoming all wonky after downloading a chapter
+        print(f'\r{self.url}: Image {i + 1}/{len(img_urls)}', end='\n')
+
         # finally we return the images
         return ImageDownloads(img_bytes)
 
@@ -233,8 +236,6 @@ def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
         # otherwise if not specified it shows both
         query_url+='&adult='
 
-    print(query_url)
-
     # after that we actually request the url
     query_response = requests.get(query_url)
 
@@ -262,5 +263,5 @@ def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
         # now we add the data we just got as a SearchResult object to the list of search_results
         search_results.append(SearchResult(title, url, 'mangaread'))
 
-search('d')
-
+    # finally we return the search results
+    return search_results
