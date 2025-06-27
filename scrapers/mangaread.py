@@ -1,8 +1,8 @@
 import bs4
 import requests
-import pyperclip
-from common import ImageDownloads, SeriesImageDownloads, Image
+from common import ImageDownloads, SeriesImageDownloads, Image, SearchResult
 import re
+import urllib.parse
 
 class Chapter:
     def __init__(self, url: str):
@@ -109,8 +109,6 @@ class Series:
         # first we request the page url
         response = requests.get(self.url)
 
-        pyperclip.copy(response.content.decode())
-
         # next we make sure we got a status code 200
         if response.status_code != 200:
             raise Exception(f'Error when requesting the series at \'{self.url}\'. Got status code {response.status_code}')
@@ -162,6 +160,7 @@ class Series:
         # finally we return the downloaded chapters we just got
         return bundled_chapters
 
+# all the functions here are for main.py
 def download(url: str, output_path: str):
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
@@ -215,4 +214,53 @@ def download(url: str, output_path: str):
     else:
         # here we return false since it didn't match anything
         return False
+
+def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
+    # first we turn the query into one we can later put into a url
+    url_safe_query = urllib.parse.quote(query)
+
+    # next we get the url we'll be requesting
+    query_url = f'https://mangaread.org/?s={url_safe_query}&post_type=wp-manga'
+
+    # adding the filter for adult content if specified
+    if adult == True:
+        # if adult is true, it shows only adult content
+        query_url += '&adult=1'
+    elif adult == False:
+        # if adult is false, it shows only not adult content
+        query_url += '&adult=0'
+    else:
+        # otherwise if not specified it shows both
+        query_url+='&adult='
+
+    print(query_url)
+
+    # after that we actually request the url
+    query_response = requests.get(query_url)
+
+    # here we make sure we got a status code 200
+    if query_response.status_code != 200:
+        raise Exception(f'Recieved status code {query_response.status_code} when searching \'{query}\' on mangaread.org')
+
+    # now that we know the search went through, we parse the html we just got
+    soup = bs4.BeautifulSoup(query_response.content, 'html.parser')
+
+    # first we get the div that has all the search results
+    search_result_div = soup.find('div', {'class': 'c-tabs-item', })
+
+    # this is the div where we save all the search results
+    search_results = []
+
+    # now we go through every row in the div and get it's name, and url
+    for search_result in search_result_div.find_all('div', {'class': 'c-tabs-item__content'}):
+        # first we get the title
+        title = search_result.find('div', {'class': 'post-title'}).text.strip()
+
+        # then we get the url
+        url = search_result.find('a').get('href')
+
+        # now we add the data we just got as a SearchResult object to the list of search_results
+        search_results.append(SearchResult(title, url, 'mangaread'))
+
+search('d')
 

@@ -98,3 +98,16 @@ class SeriesImageDownloads(list[ImageDownloads]):
         # going through every ImageDownloads object in self and calling save on it
         for i, img_downloads_object in enumerate(self):
             img_downloads_object.save(os.path.join(path, f'{i:03d}'))
+
+class SearchResult:
+    '''This is the class for search results from manga websites
+    IMPORTANT NOTE: website should be the name of the scraper file for that website
+
+    Example Code:
+    from mangaread import search
+
+    '''
+    def __init__(self, name: str, url: str, website: str):
+        self.name = name
+        self.url = url
+        self.website = website
