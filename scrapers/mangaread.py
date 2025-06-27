@@ -172,7 +172,7 @@ def download(url: str, output_path: str):
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
     # these are the regexs for the chapter and series respectively
-    chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-\d+/?')
+    chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-(\d|-)+/?')
     series_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/?')
 
     # here we check if either match the given url
@@ -180,6 +180,9 @@ def download(url: str, output_path: str):
         # if the code got here, we know it matches so next we check if it's a series or chapter, then download it accordingly
         # this is for series
         if series_regex.fullmatch(url):
+            # since it matched, we give an indication it matched to the user
+            print(f'Downloading {url}')
+
             # first we make an object for the series
             series_object = Series(url)
 
@@ -194,6 +197,9 @@ def download(url: str, output_path: str):
 
         # this is for chapters
         elif chapter_regex.fullmatch(url):
+            # since it matched, we give an indication it matched to the user
+            print(f'Downloading {url}')
+
             # first we make an obejct for the chapter
             chapter_object = Chapter(url)
 
