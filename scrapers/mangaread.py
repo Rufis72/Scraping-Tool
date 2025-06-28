@@ -174,7 +174,7 @@ def download(url: str, output_path: str):
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
     # these are the regexs for the chapter and series respectively
-    chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-(\d|-)+/?')
+    chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-[^/]+/?')
     series_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/?')
 
     # here we check if either match the given url
