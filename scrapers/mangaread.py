@@ -1,6 +1,8 @@
+import os.path
+
 import bs4
 import requests
-from common import ImageDownloads, SeriesImageDownloads, Image, SearchResult
+from common import SearchResult
 import re
 import urllib.parse
 
@@ -40,10 +42,9 @@ class Chapter:
         # now the final final step is to return all the urls we got
         return img_srcs
 
-    def download(self, show_updates_in_terminal: bool = True) -> ImageDownloads:
+    def download(self, output_path: str, show_updates_in_terminal: bool = True):
         '''Gets all the image urls for a chapter, then downloads them.
-        This function returns the bytes of all those images as an ImageDownloads object
-        This function will also not save the images, instead if you want to do that call save on the ImageDownloads object this function returns as shown in the example code
+        This function will also save the images
 
         Example Code:
         import os
@@ -54,16 +55,16 @@ class Chapter:
         c = Chapter('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224\')
 
         # downloading the images
-        img_bytes = c.download()
-
-        # saving the images
-        img_bytes.save(path_to_save_images_to)
+        img_bytes = c.download(path_to_save_images_to)
+        :param output_path: The path the images will be saved to
+        :param show_updates_in_terminal: If updates should be shown in terminal when downloading
         '''
         # first we get all the img urls
         img_urls = self.get_img_urls()
 
-        # next, we download all the images and add them to a list
-        img_bytes = []
+        # next we make a directory for the chapter (if it doesn't already exist)
+        if not os.path.exists(output_path):
+            os.mkdir(output_path)
 
         # if enabled we print an update in terminal showing we've started the download
         if show_updates_in_terminal:
@@ -84,19 +85,18 @@ class Chapter:
                 if img_response.status_code != 200:
                     raise Exception(f'Got status codes {status_code_one} and {img_response.status_code} when requesting the image at \'{img_url}\'')
 
-            # if we did get the image, we add it to the list
-            # we turn the bytearray into a common.Image because common.ImageDownloads uses common.Images as input
-            img_bytes.append(Image(img_response.content))
+            # if we did get the image, we save it
+            with open(os.path.join(output_path, f'{i:03d}.png'), 'wb') as f:
+                f.write(img_response.content)
 
-            # we also give an update that we finished an update
+            # we also give an update that we finished an update (if enabled)
             if show_updates_in_terminal:
                 print(f'\r{self.url}: Image {i+1}/{len(img_urls)}', end='')
 
         # here we print the same text we already printed to show that the chapter's downloaded, but with \n at the end to stop the output becoming all wonky after downloading a chapter
-        print(f'\r{self.url}: Image {i + 1}/{len(img_urls)}', end='\n')
-
-        # finally we return the images
-        return ImageDownloads(img_bytes)
+        # if enabled of course
+        if show_updates_in_terminal:
+            print(f'\r{self.url}: Image {i + 1}/{len(img_urls)}', end='\n')
 
 class Series:
     def __init__(self, url: str):
@@ -128,12 +128,15 @@ class Series:
             # now we append the a tag's href to the chapter urls, and on to the next chapter_li!
             chapter_urls.append(chapter_a_tag.get('href'))
 
+        # but before returning the urls, we have to flip the list so the last chapter isn't at index 0, and the first isn't at -1
+        chapter_urls.reverse()
+
         # now the final final thing is returning the urls we just extracted
         return chapter_urls
 
-    def download(self) -> SeriesImageDownloads:
-        '''Gets every chapter of a series' images and returns them as a SeriesImageDownloads object
-        This function will not save the images anywhere, instead call save on the SeriesImageDownloads object it returns
+    def download(self, output_path: str):
+        '''Gets every chapter of a series' images and saves them to output_path
+        If output_path's basename is the name of the series, it will put all the chapters there, otherwise, it will create a folder to save the chapters to
 
         Example Code:
         import os
@@ -144,24 +147,19 @@ class Series:
         c = Series('https://www.mangaread.org/manga/the-beginning-after-the-end/')
 
         # downloading the images
-        img_bytes = c.download()'''
+        img_bytes = c.download(output_path)
+        :param output_path: The path where the images will be saved to'''
         # first we get all the urls for the chapters in the series
         chapter_urls = self.get_chapter_urls()
 
         # next we go through and download every chapter
-        downloaded_chapters = []
-        for chapter_url in chapter_urls:
+        for i, chapter_url in enumerate(chapter_urls):
             # the first step is making a chapter object for the chapter
             chapter_object = Chapter(chapter_url)
 
             # then we download it and add it to downloaded_chapters
-            downloaded_chapters.append(chapter_object.download())
-
-        # after that we bundle all the downloaded chapters together in a SeriesImageDownloads object
-        bundled_chapters = SeriesImageDownloads(downloaded_chapters)
-
-        # finally we return the downloaded chapters we just got
-        return bundled_chapters
+            # we also pass the output path
+            chapter_object.download(os.path.join(output_path, f'{i:04d}'))
 
 # all the functions here are for main.py
 def download(url: str, output_path: str):
@@ -188,11 +186,19 @@ def download(url: str, output_path: str):
             # first we make an object for the series
             series_object = Series(url)
 
-            # next we download the images
-            images = series_object.download()
+            # after that we make the directory for the series. (if we're not already in it)
+            # if we are already in the directory for the series directory, the following code will be False and nothing will happen
+            if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
+                # if the directory for the series directory doesn't exist, we make it
+                if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
+                    os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
+                # now we jsut change the output path to the new directory for the series one so we can just pass output_path to the download function either way
+                output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
 
-            # finally we save them to the output path
-            images.save(output_path)
+
+            # next we download the images
+            # the download function also saves them, so we don't have to worry aobut that
+            images = series_object.download(output_path)
 
             # then we return True so whatever is calling this knows it matched
             return True
@@ -206,10 +212,7 @@ def download(url: str, output_path: str):
             chapter_object = Chapter(url)
 
             # next we download the images
-            images = chapter_object.download()
-
-            # finally we save them to the output path
-            images.save(output_path)
+            chapter_object.download(output_path)
 
             # then we return True so whatever is calling this knows it matched
             return True
