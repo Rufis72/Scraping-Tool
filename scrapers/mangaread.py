@@ -1,8 +1,7 @@
 import os.path
-
 import bs4
 import requests
-from common import SearchResult
+from common import SearchResult, sort_search_results
 import re
 import urllib.parse
 
@@ -266,5 +265,10 @@ def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
         # now we add the data we just got as a SearchResult object to the list of search_results
         search_results.append(SearchResult(title, url, 'mangaread'))
 
+    # then the second to last step is feeding the search results through our own searching function
+    # that function basically just sorts them all by how similar their names are to the query
+
+    sorted_search_results = sort_search_results(search_results, query)
+
     # finally we return the search results
-    return search_results
+    return sorted_search_results

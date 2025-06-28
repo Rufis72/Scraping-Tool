@@ -1,4 +1,5 @@
 import os.path
+import difflib
 
 class Image(bytes):
     '''This is a class to represent a downloaded image
@@ -121,3 +122,25 @@ def generate_text_with_link(uri, label=None):
     escape_mask = '\033]8;{};{}\033\\{}\033]8;;\033\\'
 
     return escape_mask.format(parameters, uri, label)
+
+def sort_search_results(search_results: list[SearchResult], query: str):
+    '''Sorts all the passed in search results by how close their title is to the query'''
+    # first we define a variable to store our list of sorted results
+    similarity_list = []
+
+    # then we calculate similarity scores using a for loop
+    for obj in search_results:
+        score = difflib.SequenceMatcher(None, obj.name, query).ratio()
+        similarity_list.append((obj, score))
+
+    # Sort the list of tuples based on the similarity score
+    similarity_list.sort(key=lambda x: x[1], reverse=True)
+
+    # then we extract the objects from the sorted list of results, and we've done it!
+    sorted_results = []
+    for object, score in similarity_list:
+        sorted_results.append(object)
+
+
+    return sorted_results
+

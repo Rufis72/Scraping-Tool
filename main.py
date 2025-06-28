@@ -2,7 +2,6 @@ import argparse
 import os
 from scrapers import mangaread
 from common import SearchResult, generate_text_with_link
-import typing
 
 
 def get_scraper_mappings() -> dict[str, dict]:
