@@ -1,7 +1,7 @@
 import os.path
 import bs4
 import requests
-from common import SearchResult, sort_search_results
+from common import SearchResult, sort_search_results, print_image_download_start, print_image_download_update, print_image_download_end
 import re
 import urllib.parse
 
@@ -67,7 +67,7 @@ class Chapter:
 
         # if enabled we print an update in terminal showing we've started the download
         if show_updates_in_terminal:
-            print(f'{self.url}: Image 0/{len(img_urls)}', end='')
+            print_image_download_start(self.url, len(img_urls))
 
         for i, img_url in enumerate(img_urls):
             # first we request the img
@@ -88,14 +88,14 @@ class Chapter:
             with open(os.path.join(output_path, f'{i:03d}.png'), 'wb') as f:
                 f.write(img_response.content)
 
-            # we also give an update that we finished an update (if enabled)
+            # we also give an update that we finished an image (if enabled)
             if show_updates_in_terminal:
-                print(f'\r{self.url}: Image {i+1}/{len(img_urls)}', end='')
+                print_image_download_update(self.url, i, len(img_urls))
 
         # here we print the same text we already printed to show that the chapter's downloaded, but with \n at the end to stop the output becoming all wonky after downloading a chapter
         # if enabled of course
         if show_updates_in_terminal:
-            print(f'\r{self.url}: Image {i + 1}/{len(img_urls)}', end='\n')
+            print_image_download_end(self.url, len(img_urls))
 
 class Series:
     def __init__(self, url: str):

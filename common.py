@@ -1,5 +1,6 @@
 import os.path
 import difflib
+import sys
 
 class Image(bytes):
     '''This is a class to represent a downloaded image
@@ -144,3 +145,16 @@ def sort_search_results(search_results: list[SearchResult], query: str):
 
     return sorted_results
 
+def print_image_download_end(url: str, total_images: int):
+    '''Clears the current line and print an image downloading update with a new line at the end'''
+    sys.stdout.write('\033[K')  # ANSI escape code to clear the line
+    print(f'\r{url}: {total_images}/{total_images}', end='\n')
+
+def print_image_download_update(url: str, current_progress: int, total_images: int):
+    '''Clears the current line and print an image downloading update with no new line at the end'''
+    sys.stdout.write('\033[K')  # ANSI escape code to clear the line
+    print(f'\r{url}: {current_progress + 1}/{total_images}', end='')
+
+def print_image_download_start(url: str, total_images: int):
+    '''Prints an image downloading update'''
+    print(f'\r{url}: 0/{total_images}', end='')
