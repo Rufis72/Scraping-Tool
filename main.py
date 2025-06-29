@@ -11,7 +11,6 @@ def get_scraper_mappings() -> dict[str, dict]:
             'url': 'mangaread.org',
             'download_function': mangaread.download,
             'search_function': mangaread.search,
-            'type': 'manga'
         }
     }
 
