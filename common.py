@@ -106,6 +106,7 @@ def print_image_download_end(url: str, total_images: int) -> None:
     # that code would output this: '\rhttps://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 43/43\n'
     :param url: The url to print an update for with the given data
     :param total_images: The first and second number in the progress indicator (total_images/total_images)'''
+    print(f'\r{url}: {total_images}/{total_images}', end='\n')
 
 
 def print_image_download_update(url: str, current_progress: int, total_images: int) -> None:
@@ -120,7 +121,6 @@ def print_image_download_update(url: str, current_progress: int, total_images: i
     :param url: The url to print an update for with the given data
     :param total_images: The second number in the progress indicator (current_progress/total_images)
     :param current_progress The first number in the progress indicator (current_progress/total_images) One is added to this to make it say 0/n when one image has been downloaded'''
-    sys.stdout.write('\033[K')  # ANSI escape code to clear the line
     print(f'\r{url}: {current_progress + 1}/{total_images}', end='')
 
 

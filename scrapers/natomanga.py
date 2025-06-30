@@ -1,9 +1,10 @@
 import os.path
 import bs4
 import requests
+from bs4 import BeautifulSoup
 from common import SearchResult, sort_search_results, print_image_download_start, print_image_download_update, print_image_download_end
 import re
-import urllib.parse
+from urllib import parse
 
 class Chapter:
     def __init__(self, url: str):
@@ -15,39 +16,39 @@ class Chapter:
 
         Example Code:
 
-        chapter = Chapter('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224/')
+        chapter = Chapter('https://www.natomanga.com/manga/the-beginning-after-the-end/chapter-224/')
         img_urls = chapter.get_img_urls()
         print(img_urls)'''
-        # first we request the chapter
+        # first we request the series page
         response = requests.get(self.url)
 
-        # next we make sure we make sure we got a status code 200
+        # making sure we got a status code 200
         if response.status_code != 200:
-            raise Exception(f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
+            raise Exception(
+                f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
 
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # the first step to getting the images is navigating the url and getting the reading content div
-        # the reading content div has all the images
-        reading_content_div = soup.find('div', {'class': 'reading-content'})
+        # next we get the div with all the <img>s in it
+        img_div = soup.find('div', {'class': 'container-chapter-reader'})
 
-        # now the final step is to get all images and extract their srcs
-        img_srcs = []
-        # here we go through every image and get it's src
-        for img in reading_content_div.find_all('img'):
-            # now we add the img's src to img_srcs
-            img_srcs.append(img.get('src').strip())
+        # next we go through every image in the img_div and save it to our list of images
+        image_srcs = []
+        for image in img_div.find_all('img'):
+            # now we get the img's src and add it to our list of images
+            image_srcs.append(image.get('src'))
 
-        # now the final final step is to return all the urls we got
-        return img_srcs
+        # finally we return the image sources
+        return image_srcs
+
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True):
         '''Gets all the image urls for a chapter, then downloads them.
         This function will also save the images
 
         Example Code:
-        from mangaread import Chapter
+        from natomanga import Chapter
 
         path_to_save_images_to = 'put/your/path/here'
 
@@ -70,6 +71,12 @@ class Chapter:
         if show_updates_in_terminal:
             print_image_download_start(self.url, len(img_urls))
 
+        # we also define the headers for downloading images here
+        image_headers = {
+            'Referer': 'https://www.natomanga.com/',
+            'Host': parse.urlparse(img_urls[0]).hostname, # we get the hostname of the images since it  changes every chapter
+        }
+
         for i, img_url in enumerate(img_urls):
             # first we request the img
             img_response = requests.get(img_url)
@@ -79,11 +86,12 @@ class Chapter:
                 # we also store the status code in case we need to use it for an error message
                 status_code_one = img_response.status_code
                 # if it didn't, we request it one more time
-                img_response = requests.get(img_url)
+                img_response = requests.get(img_url, headers=image_headers)
 
                 # and if that still doesn't work, we raise an error
                 if img_response.status_code != 200:
-                    raise Exception(f'Got status codes {status_code_one} and {img_response.status_code} when requesting the image at \'{img_url}\'')
+                    raise Exception(
+                        f'Got status codes {status_code_one} and {img_response.status_code} when requesting the image at \'{img_url}\'')
 
             # if we did get the image, we save it
             with open(os.path.join(output_path, f'{i:03d}.png'), 'wb') as f:
@@ -98,40 +106,47 @@ class Chapter:
         if show_updates_in_terminal:
             print_image_download_end(self.url, len(img_urls))
 
+
+
 class Series:
     def __init__(self, url: str):
         self.url = url
 
     def get_chapter_urls(self) -> list[str]:
-        '''Returns a list of the urls to all the chapters of a series as strings
+        '''Returns a list of all the image urls for a given chapter
 
         Example Code:
-        s = Series('https://www.mangaread.org/manga/the-beginning-after-the-end/')
-        urls = s.get_chapter_urls()
-        print(urls)'''
-        # first we request the page url
+
+        series = Series('https://www.natomanga.com/manga/the-beginning-after-the-end/')
+        chapter_urls = series.get_chapter_urls()
+        print(chapter_urls)'''
+        # first we request the series page
         response = requests.get(self.url)
 
-        # next we make sure we got a status code 200
+        # making sure we got a status code 200
         if response.status_code != 200:
-            raise Exception(f'Error when requesting the series at \'{self.url}\'. Got status code {response.status_code}')
+            raise Exception(
+                f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
 
-        # now that we know the request went through, we parse the html
+        # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # finally we go through every element in that list and get the link it leads to
-        chapter_urls = []
-        # the reason we call it chapter_li is because the chapter buttons are li tags
-        for chapter_li in  soup.find_all('li', {'class': 'wp-manga-chapter'}):
-            # we get the a tag for the chapter because that's what has the href
-            chapter_a_tag = chapter_li.find('a')
-            # now we append the a tag's href to the chapter urls, and on to the next chapter_li!
-            chapter_urls.append(chapter_a_tag.get('href'))
+        # after that, we get the div with all the chapters
+        chapter_div = soup.find('div', {'class': 'chapter-list'})
 
-        # but before returning the urls, we have to flip the list so the last chapter isn't at index 0, and the first isn't at -1
+        # then we get all the links from everything in chapter_div
+        chapter_urls = []
+        for chapter_row in chapter_div.find_all('div'):
+            # first we get the <a> tag in the chapter row div
+            a_tag_with_href = chapter_row.find('a')
+
+            # then we get the a tag's href and add it to the list
+            chapter_urls.append(a_tag_with_href.get('href'))
+
+        # the second to last step is to reverse the list, because otherwise index 0 would be the latest chapter
         chapter_urls.reverse()
 
-        # now the final final thing is returning the urls we just extracted
+        # the final step is just returning the urls
         return chapter_urls
 
     def download(self, output_path: str):
@@ -161,6 +176,7 @@ class Series:
             # we also pass the output path
             chapter_object.download(os.path.join(output_path, f'{i:04d}'))
 
+
 # all the functions here are for main.py
 def download(url: str, output_path: str):
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
@@ -171,9 +187,9 @@ def download(url: str, output_path: str):
     download('https://www.mangaread.org/manga/the-beginning-after-the-end/') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
-    # these are the regexs for the chapter and series respectively
-    chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-[^/]+/?')
-    series_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/?')
+    # these are the regex for the chapter and series respectively
+    chapter_regex = re.compile(r'(https://)?(www\.)?natomanga\.com/manga/[^/]*/chapter-[^/]+/?')
+    series_regex = re.compile(r'(https://)?(www\.)?natomanga\.com/manga/[^/]*/?')
 
     # here we check if either match the given url
     if chapter_regex.fullmatch(url) or series_regex.fullmatch(url):
@@ -221,58 +237,45 @@ def download(url: str, output_path: str):
         # here we return false since it didn't match anything
         return False
 
-def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
-    '''Uses mangaread.org's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
+def search(query: str, adult: bool or None = None):
+    '''Uses natomanga.com's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
     :param query: The string to search
     :param adult: If it should include only adult (True), only non-adult (False), or both (None).'''
     # first we turn the query into a query we can later put into a url
-    url_safe_query = urllib.parse.quote(query)
+    url_safe_query = parse.quote(query)
 
-    # next we get the url we'll be requesting
-    query_url = f'https://mangaread.org/?s={url_safe_query}&post_type=wp-manga'
+    # next we put the url safe query into a url
+    search_url = f'https://www.natomanga.com/search/story/{url_safe_query}?page=1'
 
-    # adding the filter for adult content if specified
-    if adult == True:
-        # if adult is true, it shows only adult content
-        query_url += '&adult=1'
-    elif adult == False:
-        # if adult is false, it shows only not adult content
-        query_url += '&adult=0'
-    else:
-        # otherwise if not specified it shows both
-        query_url+='&adult='
+    # these are the headers
+    headers = {
+        'Host': 'www.natomanga.com',
+        'Referer': 'https://www.natomanga.com/',
+    }
 
-    # after that we actually request the url
-    query_response = requests.get(query_url)
+    # then after that we request the search page
+    query_response = requests.get(search_url, headers=headers)
 
-    # here we make sure we got a status code 200
+    # making sure we got a status code 200
     if query_response.status_code != 200:
-        raise Exception(f'Recieved status code {query_response.status_code} when searching \'{query}\' on mangaread.org')
+        raise Exception(f'Recieved status code {query_response.status_code} when searching \'{query}\' on natomanga.com')
 
-    # now that we know the search went through, we parse the html we just got
-    soup = bs4.BeautifulSoup(query_response.content, 'html.parser')
+    # now we parse the html
+    soup = BeautifulSoup(query_response.content, 'html.parser')
 
-    # first we get the div that has all the search results
-    search_result_div = soup.find('div', {'class': 'c-tabs-item', })
+    # next we get the div with all the chapters in it
+    chapter_div = soup.find('div', {'class': 'panel_story_list'})
 
-    # this is the div where we save all the search results
+    # next we go through everything in that div and extract the name and url and save it as a SearchResult object to our list of search results
     search_results = []
-
-    # now we go through every row in the div and get it's name, and url
-    for search_result in search_result_div.find_all('div', {'class': 'c-tabs-item__content'}):
-        # first we get the title
-        title = search_result.find('div', {'class': 'post-title'}).text.strip()
-
-        # then we get the url
+    for search_result in chapter_div.find_all('div'):
         url = search_result.find('a').get('href')
+        name = search_result.find('h3', {'class': 'story_name'}).text.strip()
+        # now we turn it into a search result object and save it
+        search_results.append(SearchResult(name, url, 'manganato'))
 
-        # now we add the data we just got as a SearchResult object to the list of search_results
-        search_results.append(SearchResult(title, url, 'mangaread'))
-
-    # then the second to last step is feeding the search results through our own searching function
-    # that function basically just sorts them all by how similar their names are to the query
-
+    # the second to last step is sorting the search results
     sorted_search_results = sort_search_results(search_results, query)
 
-    # finally we return the search results
+    # finally we return the sorted search results
     return sorted_search_results

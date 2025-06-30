@@ -1,7 +1,8 @@
 import argparse
 import os
-from scrapers import mangaread
-from common import SearchResult, generate_text_with_link
+from scrapers import mangaread, natomanga
+from common import SearchResult, generate_text_with_link, sort_search_results
+from urllib import parse
 
 
 def get_scraper_mappings() -> dict[str, dict]:
@@ -11,6 +12,11 @@ def get_scraper_mappings() -> dict[str, dict]:
             'url': 'mangaread.org',
             'download_function': mangaread.download,
             'search_function': mangaread.search,
+        },
+        'manganato': {
+            'url': 'natomanga.com',
+            'download_function': natomanga.download,
+            'search_function': natomanga.search
         }
     }
 
@@ -48,8 +54,11 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
         if search_result:
             search_results.append(search_function(query, adult)[0])
 
+    # next we sort the search results to make sure the best are at the top
+    sorted_search_results = sort_search_results(search_results, query)
+
     # finally we return the search_results
-    return search_results
+    return sorted_search_results
 
 def main(args):
     '''Does all the downloading stuff with the passed in args'''
@@ -67,7 +76,7 @@ def main(args):
             search_results_user_prompt += '\n'
 
             # next we add the number and data for the search result
-            search_results_user_prompt += f'{i}: {generate_text_with_link(search_result.url, search_result.name)}'
+            search_results_user_prompt += f'{i}: {generate_text_with_link(search_result.url, search_result.name)} ({get_scraper_mappings().get(search_result.website_id).get('url')})'
 
         # we add a new line character here, since the string would be missing one otherwise
         search_results_user_prompt += '\n'
@@ -83,7 +92,7 @@ def main(args):
         # now, we download that
         # first we get the download function for that website
         # this mess of a line boils down to getting the website that the result was from, then getting that website's download function
-        download_function = get_scraper_mappings().get(search_results[int(one_to_download)].website).get('download_function')
+        download_function = get_scraper_mappings().get(search_results[int(one_to_download)].website_id).get('download_function')
 
         # now we check if -o flag has an output path, or if we should just save everything in the working directory
         if args.o:
