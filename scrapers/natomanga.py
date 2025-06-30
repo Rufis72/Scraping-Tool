@@ -30,7 +30,7 @@ class Chapter:
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # next we get the div with all the <img>s in it
+        # next we get the div with all the images in it
         img_div = soup.find('div', {'class': 'container-chapter-reader'})
 
         # next we go through every image in the img_div and save it to our list of images
@@ -53,7 +53,7 @@ class Chapter:
         path_to_save_images_to = 'put/your/path/here'
 
         # making the chapter object
-        chapter = Chapter('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224\')
+        chapter = Chapter('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224/')
 
         # downloading the images
         img_bytes = chapter.download(path_to_save_images_to)
@@ -113,7 +113,7 @@ class Series:
         self.url = url
 
     def get_chapter_urls(self) -> list[str]:
-        '''Returns a list of all the image urls for a given chapter
+        '''Returns a list of all the chapter urls for a given series
 
         Example Code:
 
@@ -154,12 +154,12 @@ class Series:
         If output_path's basename is the name of the series, it will put all the chapters there, otherwise, it will create a folder to save the chapters to
 
         Example Code:
-        from mangaread import Series
+        from natomanga import Series
 
         path_to_save_images_to = 'put/your/path/here'
 
         # making the series object
-        series = Series('https://www.mangaread.org/manga/the-beginning-after-the-end/')
+        series = Series('https://www.natomanga.com/manga/the-beginning-after-the-end')
 
         # downloading the images
         img_bytes = series.download(output_path)
