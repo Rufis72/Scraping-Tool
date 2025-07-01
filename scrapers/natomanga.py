@@ -241,7 +241,7 @@ def search(query: str, adult: bool or None = None):
     '''Uses natomanga.com's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
     :param query: The string to search
     :param adult: If it should include only adult (True), only non-adult (False), or both (None).'''
-    # first we turn the query into a query we can later put into a url
+    # first we turn the query into a url safe query we can later put into a url
     url_safe_query = parse.quote(query)
 
     # next we put the url safe query into a url
@@ -263,7 +263,7 @@ def search(query: str, adult: bool or None = None):
     # now we parse the html
     soup = BeautifulSoup(query_response.content, 'html.parser')
 
-    # next we get the div with all the chapters in it
+    # next we get the div with all the result in it
     chapter_div = soup.find('div', {'class': 'panel_story_list'})
 
     # next we go through everything in that div and extract the name and url and save it as a SearchResult object to our list of search results

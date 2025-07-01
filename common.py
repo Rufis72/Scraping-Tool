@@ -36,6 +36,9 @@ class SearchResult:
         It outputs this (this is sudo code) f'{SearchResult's_website_id_with_a_clickable_link_to_it's_url}: {SearchResult.name_with_a_clickable_link_to_SearchResult.url}' '''
         return f'{generate_text_with_link('https://' + parse.urlparse(self.url).hostname, self.website_id)}: {generate_text_with_link(self.url, self.name)}'
 
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 def generate_text_with_link(uri, label=None) -> str:
     '''Returns a string that when printed in a modern terminal will show text that when clicked leads to a url
