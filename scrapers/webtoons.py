@@ -215,13 +215,15 @@ def download(url: str, output_path: str):
             series_object = Series(url)
 
             # after that we make the directory for the series. (if we're not already in it)
+            # first we get the series name
+            series_name = url.strip('/').split('/')[-2]
             # if we are already in the directory for the series directory, the following code will be False and nothing will happen
-            if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
+            if os.path.basename(output_path) != series_name:
                 # if the directory for the series directory doesn't exist, we make it
-                if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
-                    os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
-                # now we justt change the output path to the new directory for the series one so we can just pass output_path to the download function either way
-                output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
+                if not os.path.exists(os.path.join(output_path, series_name)):
+                    os.mkdir(os.path.join(output_path, series_name))
+                # now we just change the output path to the new directory for the series one so we can just pass output_path to the download function either way
+                output_path = os.path.join(output_path, series_name)
 
 
             # next we download the images
