@@ -48,7 +48,7 @@ class Chapter:
         This function will also save the images
 
         Example Code:
-        from natomanga import Chapter
+        from scrapers.natomanga import Chapter
 
         path_to_save_images_to = 'put/your/path/here'
 
@@ -154,7 +154,7 @@ class Series:
         If output_path's basename is the name of the series, it will put all the chapters there, otherwise, it will create a folder to save the chapters to
 
         Example Code:
-        from natomanga import Series
+        from scrapers.natomanga import Series
 
         path_to_save_images_to = 'put/your/path/here'
 

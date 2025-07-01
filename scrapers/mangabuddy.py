@@ -43,7 +43,7 @@ class Chapter:
         This function will also save the images
 
         Example Code:
-        from mangabuddy import Chapter
+        from scrapers.mangabuddy import Chapter
 
         path_to_save_images_to = 'put/your/path/here'
 
@@ -156,7 +156,7 @@ class Series:
         If output_path's basename is the name of the series, it will put all the chapters there, otherwise, it will create a folder to save the chapters to
 
         Example Code:
-        from mangabuddy import Series
+        from scrapers.mangabuddy import Series
 
         path_to_save_images_to = 'put/your/path/here'
 
@@ -184,7 +184,7 @@ def download(url: str, output_path: str):
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
     Example Code:
-    from mangabuddy import download
+    from scrapers.mangabuddy import download
 
     download('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading
