@@ -271,7 +271,7 @@ def search(query: str, adult: bool or None = None):
     # making sure we got a status code 200
     if query_response.status_code != 200:
         raise Exception(
-            f'Recieved status code {query_response.status_code} when searching \'{query}\' on mangabuddy.com')
+            f'Recieved status code {query_response.status_code} when searching \'{query}\' on webtoons.com')
 
     # now we parse the html
     soup = BeautifulSoup(query_response.content, 'html.parser')
@@ -286,7 +286,7 @@ def search(query: str, adult: bool or None = None):
         name = search_result.find('strong', {'class': 'title'}).text.strip()
 
         # now we turn it into a search result object and save it
-        search_results.append(SearchResult(name, url, 'mangabuddy'))
+        search_results.append(SearchResult(name, url, 'webtoons'))
 
     # the second to last step is sorting the search results
     sorted_search_results = sort_search_results(search_results, query)

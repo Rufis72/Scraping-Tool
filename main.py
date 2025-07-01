@@ -1,6 +1,6 @@
 import argparse
 import os
-from scrapers import mangaread, natomanga, mangabuddy
+from scrapers import mangaread, natomanga, mangabuddy, webtoons
 from common import SearchResult, generate_text_with_link, sort_search_results
 from urllib import parse
 
@@ -22,6 +22,11 @@ def get_scraper_mappings() -> dict[str, dict]:
             'url': 'mangabuddy.com',
             'download_function': mangabuddy.download,
             'search_function': mangabuddy.search
+        },
+        'webtoons': {
+            'url': 'webtoons.com',
+            'download_function': webtoons.download,
+            'search_function': webtoons.search
         }
     }
 
