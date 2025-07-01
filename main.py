@@ -91,7 +91,7 @@ def main(args):
         # we add a new line character here, since the string would be missing one otherwise
         search_results_user_prompt += '\n'
 
-        # if there were no search results, we change the string, and end the function
+        # if there were no search results, we alert the user and end the script
         if not search_results:
             print(f'No results found for query \'{args.text}\'')
             return None
