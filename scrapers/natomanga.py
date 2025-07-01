@@ -15,6 +15,7 @@ class Chapter:
         '''Returns a list of all the image urls for a given chapter
 
         Example Code:
+        from scrapers.natomanga import Chapter
 
         chapter = Chapter('https://www.natomanga.com/manga/the-beginning-after-the-end/chapter-224/')
         img_urls = chapter.get_img_urls()
@@ -116,6 +117,7 @@ class Series:
         '''Returns a list of all the chapter urls for a given series
 
         Example Code:
+        from scrapers.natomanga import Series
 
         series = Series('https://www.natomanga.com/manga/the-beginning-after-the-end/')
         chapter_urls = series.get_chapter_urls()
@@ -182,7 +184,7 @@ def download(url: str, output_path: str):
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
     Example Code:
-    from mangaread import download
+    from scrapers.natomanga import download
 
     download('https://www.mangaread.org/manga/the-beginning-after-the-end/') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading

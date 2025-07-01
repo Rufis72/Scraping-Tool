@@ -14,6 +14,7 @@ class Chapter:
         '''Returns a list of all the image urls for a given chapter
 
         Example Code:
+        from scrapers.mangabuddy import Chapter
 
         chapter = Chapter('https://mangabuddy.com/the-beginning-after-the-end/chapter-224')
         img_urls = chapter.get_img_urls()
@@ -109,6 +110,7 @@ class Series:
         '''Returns a list of all the chapter urls for a given series
 
         Example Code:
+        from scrapers.mangabuddy import Series
 
         series = Series('https://mangabuddy.com/the-beginning-after-the-end')
         chapter_urls = series.get_chapter_urls()

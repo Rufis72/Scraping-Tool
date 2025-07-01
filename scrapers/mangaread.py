@@ -14,6 +14,7 @@ class Chapter:
         '''Returns a list of all the image urls for a given chapter
 
         Example Code:
+        from scrapers.mangaread import chapter
 
         chapter = Chapter('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224/')
         img_urls = chapter.get_img_urls()
@@ -106,6 +107,8 @@ class Series:
         '''Returns a list of the urls to all the chapters of a series as strings
 
         Example Code:
+        from scrapers.mangaread import Series
+
         s = Series('https://www.mangaread.org/manga/the-beginning-after-the-end/')
         urls = s.get_chapter_urls()
         print(urls)'''
