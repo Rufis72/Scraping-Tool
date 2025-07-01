@@ -260,7 +260,7 @@ def search(query: str, adult: bool or None = None):
     url_safe_query = parse.quote(query)
 
     # next we put the url safe query into a url
-    search_url = f'https://www.webtoons.com/search/originals?q={url_safe_query}&page=1'
+    search_url = f'https://www.webtoons.com/en/search/originals?keyword={url_safe_query}&page=1'
 
     # these are the headers for requesting the search query
     headers = {
