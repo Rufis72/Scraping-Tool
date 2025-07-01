@@ -278,6 +278,10 @@ def search(query: str, adult: bool or None = None):
     # now we parse the html
     soup = BeautifulSoup(query_response.content, 'html.parser')
 
+    # first we check if we got any results
+    if soup.find('div', {'class': 'no_data'}) != None:
+        return []
+
     # next we get the div with all the results in it
     chapter_div = soup.find('ul', {'class': 'webtoon_list'})
 

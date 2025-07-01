@@ -271,8 +271,12 @@ def search(query: str, adult: bool or None = None):
     # now we parse the html
     soup = BeautifulSoup(query_response.content, 'html.parser')
 
-    # next we get the div with all the results in it
+    # getting the div with all the results in it
     chapter_div = soup.find('div', {'class': 'list manga-list'})
+
+    # checking if there were any search results
+    if soup.find('div', {'class': 'search-empty'}) != None:
+        return []
 
     # next we go through everything in that div and extract the name and url and save it as a SearchResult object to our list of search results
     search_results = []
