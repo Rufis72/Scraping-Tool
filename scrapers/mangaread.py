@@ -1,5 +1,6 @@
 import os.path
 import bs4
+import pyperclip
 import requests
 from common import SearchResult, sort_search_results, print_image_download_start, print_image_download_update, print_image_download_end
 import re
@@ -254,8 +255,13 @@ def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
 
     # now that we know the search went through, we parse the html we just got
     soup = bs4.BeautifulSoup(query_response.content, 'html.parser')
+    pyperclip.copy(query_response.content.decode())
 
-    # first we get the div that has all the search results
+    # first we check if we got any search results at all, if we didn't, we []
+    if soup.find('div', {'class': 'not-found-content'}) != None:
+        return []
+
+    # secondly we get the div that has all the search results
     search_result_div = soup.find('div', {'class': 'c-tabs-item', })
 
     # this is the div where we save all the search results
