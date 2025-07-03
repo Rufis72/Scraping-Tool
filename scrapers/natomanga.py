@@ -2,14 +2,14 @@ import os.path
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from common import SearchResult, sort_search_results, print_image_download_start, print_image_download_update, print_image_download_end
+from common import SearchResult, sort_search_results # these are search related items
+from common import SharedChapterClass, SharedSeriesClass # these are series and chapter related items
 import re
 from urllib import parse
 
-class Chapter:
+class Chapter(SharedChapterClass):
     def __init__(self, url: str):
-        ''':param url: The url to the chapter'''
-        self.url = url
+        super().__init__(url)
 
     def get_img_urls(self) -> list[str]:
         '''Returns a list of all the image urls for a given chapter
@@ -45,73 +45,13 @@ class Chapter:
 
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        '''Gets all the image urls for a chapter, then downloads them.
-        This function will also save the images
-
-        Example Code:
-        from scrapers.natomanga import Chapter
-
-        path_to_save_images_to = 'put/your/path/here'
-
-        # making the chapter object
-        chapter = Chapter('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224/')
-
-        # downloading the images
-        img_bytes = chapter.download(path_to_save_images_to)
-        :param output_path: The path the images will be saved to
-        :param show_updates_in_terminal: If updates should be shown in terminal when downloading
-        '''
-        # first we get all the img urls
-        img_urls = self.get_img_urls()
-
-        # next we make a directory for the chapter (if it doesn't already exist)
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-
-        # if enabled we print an update in terminal showing we've started the download
-        if show_updates_in_terminal:
-            print_image_download_start(self.url, len(img_urls))
-
-        # we also define the headers for downloading images here
-        image_headers = {
-            'Referer': 'https://www.natomanga.com/',
-            'Host': parse.urlparse(img_urls[0]).hostname, # we get the hostname of the images since it  changes every chapter
-        }
-
-        for i, img_url in enumerate(img_urls):
-            # first we request the img
-            img_response = requests.get(img_url)
-
-            # next we make sure the request went through
-            if img_response.status_code != 200:
-                # we also store the status code in case we need to use it for an error message
-                status_code_one = img_response.status_code
-                # if it didn't, we request it one more time
-                img_response = requests.get(img_url, headers=image_headers)
-
-                # and if that still doesn't work, we raise an error
-                if img_response.status_code != 200:
-                    raise Exception(
-                        f'Got status codes {status_code_one} and {img_response.status_code} when requesting the image at \'{img_url}\'')
-
-            # if we did get the image, we save it
-            with open(os.path.join(output_path, f'{i:03d}.png'), 'wb') as f:
-                f.write(img_response.content)
-
-            # we also give an update that we finished an image (if enabled)
-            if show_updates_in_terminal:
-                print_image_download_update(self.url, i, len(img_urls))
-
-        # here we print the same text we already printed to show that the chapter's downloaded, but with \n at the end to stop the output becoming all wonky after downloading a chapter
-        # if enabled of course
-        if show_updates_in_terminal:
-            print_image_download_end(self.url, len(img_urls))
+        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True)
 
 
 
-class Series:
+class Series(SharedSeriesClass):
     def __init__(self, url: str):
-        self.url = url
+        super().__init__(url)
 
     def get_chapter_urls(self) -> list[str]:
         '''Returns a list of all the chapter urls for a given series
@@ -150,33 +90,9 @@ class Series:
 
         # the final step is just returning the urls
         return chapter_urls
-
+    
     def download(self, output_path: str):
-        '''Gets every chapter of a series' images and saves them to output_path
-        If output_path's basename is the name of the series, it will put all the chapters there, otherwise, it will create a folder to save the chapters to
-
-        Example Code:
-        from scrapers.natomanga import Series
-
-        path_to_save_images_to = 'put/your/path/here'
-
-        # making the series object
-        series = Series('https://www.natomanga.com/manga/the-beginning-after-the-end')
-
-        # downloading the images
-        img_bytes = series.download(output_path)
-        :param output_path: The path where the images will be saved to'''
-        # first we get all the urls for the chapters in the series
-        chapter_urls = self.get_chapter_urls()
-
-        # next we go through and download every chapter
-        for i, chapter_url in enumerate(chapter_urls):
-            # the first step is making a chapter object for the chapter
-            chapter_object = Chapter(chapter_url)
-
-            # then we download it and add it to downloaded_chapters
-            # we also pass the output path
-            chapter_object.download(os.path.join(output_path, f'{i:04d}'))
+        super().download(output_path, Chapter)
 
 
 # all the functions here are for main.py
