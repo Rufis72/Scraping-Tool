@@ -122,7 +122,7 @@ class SharedChapterClass:
     def get_img_urls(self):
         raise Exception(f'You need to make your own get_img_urls method!')
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None):
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False):
         '''The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
 
         Example Code:
@@ -142,9 +142,12 @@ class SharedChapterClass:
         chapter.download(path_to_save_images_to)
         :param output_path: The path the images will be saved to
         :param show_updates_in_terminal: If updates should be shown in terminal when downloading
+        :param image_headers: The headers used to request images
+        :param add_host_to_image_headers: If the hostname should be added to headers under the header 'Host'
         '''
         # first we get all the img urls
         img_urls = self.get_img_urls()
+
 
         # next we make a directory for the chapter (if it doesn't already exist)
         if not os.path.exists(output_path):
@@ -155,7 +158,11 @@ class SharedChapterClass:
             print_image_download_start(self.url, len(img_urls))
 
         for i, img_url in enumerate(img_urls):
-            # first we request the img
+            # first we add the hostname to headers under 'Host' if enabled
+            if add_host_to_image_headers:
+                image_headers['Host'] = parse.urlparse(img_url).hostname
+
+            # secondly we request the img
             img_response = requests.get(img_url)
 
             # next we make sure the request went through
