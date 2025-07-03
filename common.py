@@ -1,6 +1,7 @@
 import difflib
-import sys
+import os
 from urllib import parse
+import requests
 
 class SearchResult:
     '''This is the class for search results from manga websites
@@ -38,6 +39,149 @@ class SearchResult:
 
     def __repr__(self) -> str:
         return self.__str__()
+
+class SharedSeriesClass:
+    '''This is a base class for all series classes for scrapers.
+    SharedSeriesClass already has a download method, so you just need to write a get_chapter_url method to get chapter urls.
+
+    Example Code:
+
+    # this should be a reference to the class, since the download method needs a reference
+    your_chapter_class = Chapter # do not initialize the class here
+
+    # this is if you don't want to alwasy have to include your chapter_object_reference in the download method
+    def download(self, output_path):
+        super.download(output_path, chapter_object_reference=your_chapter_class)'''
+    def __init__(self, url: str):
+        self.url = url
+
+    def download(self, output_path: str, chapter_object_reference: type):
+        '''This is the generic shared series class download function. It will call self.get_chapter_urls, then download them. If headers are passed in, it will use those when requesting the chapters
+        This function is mainly for organizing where chapters should go, so it doesn't do any requests on it's own. It just gets the paths to where the chapters should save their stuff
+
+        Example Code:
+        from common import SharedSeriesClass
+
+        # now we make a class with our own get_chapter_urls method
+        class Series(SharedSeriesClass):
+            """put a doc string here if you choose"""
+
+            def __init__(self, url: str):
+                super.__init__(url)
+
+            def get_chapter_urls(self) -> str:
+                """put some documentation here if you want"""
+                # put your chapter-getting logic here
+
+        path_to_save_images_to = 'put/your/path/here'
+
+        # making the series object using the Series class we just defined
+        series = Series('https://mangabuddy.com/the-beginning-after-the-end')
+
+        # downloading the images
+        series.download(output_path)
+        :param output_path: The path where the images will be saved to
+        :param chapter_object_reference: The reference to the Chapter object for this scraper
+        :param headers: The headers used when requesting chapters'''
+        # first we get all the urls for the chapters in the series
+        chapter_urls = self.get_chapter_urls()
+
+        # next we go through and download every chapter
+        for i, chapter_url in enumerate(chapter_urls):
+            # the first step is making a chapter object for the chapter
+            chapter_object = chapter_object_reference(chapter_url)
+
+            # then we download it and add it to downloaded_chapters
+            # we also pass the output path
+            chapter_object.download(os.path.join(output_path, f'{i:04d}'))
+
+    def get_chapter_urls(self, *args):
+        raise Exception(f'You need to make your own get_chapter_urls method!')
+
+class SharedChapterClass:
+    '''This is a base class for all chapter classes for scrapers.
+    SharedChapterClass already has a download method, so you just need to write a get_chapter_url method to get chapter urls.
+    You do need to make your own get_img_urls method
+
+    Example Code:
+
+    # this should be a reference to the class, since the download method needs a reference
+
+    your_chapter_class = Chapter # do not initialize the class here
+
+    # this is if you don't want to always have to include your chapter_object_reference in the download method
+
+    def download(self, output_path):
+
+        # you can also put headers here if you need them for your scraper when downloading images
+
+        super.download(output_path, chapter_object_reference=your_chapter_class, headers={'header-name': 'header-value'})'''
+    def __init__(self, url: str):
+        self.url = url
+
+    def get_img_urls(self):
+        raise Exception(f'You need to make your own get_img_urls method!')
+
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None):
+        '''The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
+
+        Example Code:
+
+        from common import SharedChapterClass
+
+        path_to_save_images_to = '/put/your/path/here'
+
+        # making the chapter object
+
+        # make sure to include the scheme for the url
+
+        chapter = Chapter('https://put.your/url/to/your/chapter/here')
+
+        # downloading the images
+
+        chapter.download(path_to_save_images_to)
+        :param output_path: The path the images will be saved to
+        :param show_updates_in_terminal: If updates should be shown in terminal when downloading
+        '''
+        # first we get all the img urls
+        img_urls = self.get_img_urls()
+
+        # next we make a directory for the chapter (if it doesn't already exist)
+        if not os.path.exists(output_path):
+            os.mkdir(output_path)
+
+        # if enabled we print an update in terminal showing we've started the download
+        if show_updates_in_terminal:
+            print_image_download_start(self.url, len(img_urls))
+
+        for i, img_url in enumerate(img_urls):
+            # first we request the img
+            img_response = requests.get(img_url)
+
+            # next we make sure the request went through
+            if img_response.status_code != 200:
+                # we also store the status code in case we need to use it for an error message
+                status_code_one = img_response.status_code
+                # if it didn't, we request it one more time
+                img_response = requests.get(img_url, headers=image_headers)
+
+                # and if that still doesn't work, we raise an error
+                if img_response.status_code != 200:
+                    raise Exception(
+                        f'Got status codes {status_code_one} when requesting \'{img_url}\'. Then we retried getting the image, got status code {img_response.status_code}')
+
+            # if we did get the image, we save it
+            with open(os.path.join(output_path, f'{i:03d}.png'), 'wb') as f:
+                f.write(img_response.content)
+
+            # we also give an update that we finished an image (if enabled)
+            if show_updates_in_terminal:
+                print_image_download_update(self.url, i, len(img_urls))
+
+        # here we print the same text we already printed to show that the chapter's downloaded, but with \n at the end to stop the output becoming all wonky after downloading a chapter
+        # if enabled of course
+        if show_updates_in_terminal:
+            print_image_download_end(self.url, len(img_urls))
 
 
 def generate_text_with_link(uri, label=None) -> str:
