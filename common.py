@@ -126,19 +126,15 @@ class SharedChapterClass:
         '''The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
 
         Example Code:
-
         from common import SharedChapterClass
 
         path_to_save_images_to = '/put/your/path/here'
 
         # making the chapter object
-
         # make sure to include the scheme for the url
-
         chapter = Chapter('https://put.your/url/to/your/chapter/here')
 
         # downloading the images
-
         chapter.download(path_to_save_images_to)
         :param output_path: The path the images will be saved to
         :param show_updates_in_terminal: If updates should be shown in terminal when downloading
@@ -290,3 +286,28 @@ def print_image_download_start(url: str, total_images: int) -> None:
     :param url: The url to print an update for with the given data
     :param total_images: The second number in the progress indicator (0/total_images)'''
     print(f'\r{url}: 0/{total_images}', end='')
+
+def construct_chapter_not_found_image(chapter_urls: list[str], input_chapter: int):
+    '''Returns a string like this:
+
+    <inputted chapter here> wasn't a valid chapter. There are only <amount of chapters> chapters, these are the available chapters to download. To download one, type the number before the ':'
+    0: <url here>
+    1: <url here>
+    etc
+
+    Example Code:
+
+    chapter_urls_list = ['google.com', 'duckduckgo.com', 'bing.com', 'yahoo.com']
+
+    print(construct_chapter_not_found_image(chapter_urls, 9999999))
+    :param chapter_urls: The list of chapter urls
+    :param input_chapter: The invalid input chapter the user gave'''
+    url_list_dialog = ''
+    for i, chapter_url in enumerate(chapter_urls):
+        url_list_dialog += f'{i}: {chapter_url}\n'
+
+    # constructing the full dialog
+    full_dialog = f'{url_list_dialog}{input_chapter} wasn\'t a valid chapter. There are only {len(chapter_urls)} chapters. These are the available chapters to download. To download one, type the number before the \':\'.\n'
+
+    # now we return the dialog
+    return full_dialog

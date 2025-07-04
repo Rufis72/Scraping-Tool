@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from common import SearchResult, sort_search_results # this is stuff for search results
 from common import SharedChapterClass, SharedSeriesClass # this is the base shared classes for Chapter and Series
+from common import construct_chapter_not_found_image # these are error message related items
 import re
 from urllib import parse
 
@@ -176,8 +177,8 @@ def identify_url_type(url: str) -> None or 'chapter' or 'series':
     :param url: The url to identify the type of
     :return: Either 'chapter', 'series', or None'''
     # these are the regular expressions we'll be checking against
-    chapter_regex = re.compile(r'(https://)?(www\.)?mangabuddy\.com/[^/]*/chapter-[^/]+/?')
-    series_regex = re.compile(r'(https://)?(www\.)?mangabuddy\.com/[^/]*/?')
+    chapter_regex = re.compile(r'(https://)?(www\.)?webtoons\.com/[^/]+/[^/]+/[^/]+/[^/]+/viewer\?title_no=\d+&episode_no=\d+/?')
+    series_regex = re.compile(r'(https://)?(www\.)?webtoons\.com/[^/]+/[^/]+/[^/]+/list/?\?title_no=\d+(&page=\d+)?')
 
     # now we check them
     if chapter_regex.fullmatch(url):
@@ -185,6 +186,7 @@ def identify_url_type(url: str) -> None or 'chapter' or 'series':
     elif series_regex.fullmatch(url):
         return 'series'
     else:
+        print('b')
         return None
 
 
@@ -259,28 +261,12 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
         chapter_to_download_url = chapter_urls[chapter_num]
 
     except:
-        # here we construct the dialog we're gonna give to the user
-        # we want the dialog to look something like this:
-
-        # '<put chapter_num here>' was not a valid chapter. These are the options to download. Type the number before the ':' to download that chapter
-        # 0: <url no. 1>
-        # 1: <url no. 2>
-        # etc
-
-        # we also check if there's no chapters just in case
+        # checking if there's no chapters just in case
         if len(chapter_urls) == 0:
             print(f'Sorry! \'{series_url}\' doesn\'t seem to have any chapters!')
 
-        # this is constructing the '0: <url no. 1>' string
-        url_list_dialog = ''
-        for i, chapter_url in enumerate(chapter_urls):
-            url_list_dialog += f'{i}: {chapter_url}\n'
-
-        # constructing the full dialog
-        full_dialog = f'{chapter_num} wasn\'t a valid chapter. There are only {len(chapter_urls)} chapters. These are the available chapters to download. To download one, type the number before the \':\'.\n{url_list_dialog}'
-
         # now we get the input from the user for what chapter num they want to download
-        new_user_chapter_num = int(input(full_dialog))
+        new_user_chapter_num = int(input(construct_chapter_not_found_image(chapter_urls, chapter_num)))
 
         # then the last step before downloading is getting the url corresponding to that number
         chapter_to_download_url = chapter_urls[new_user_chapter_num]

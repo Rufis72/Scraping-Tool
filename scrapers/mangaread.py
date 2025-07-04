@@ -4,6 +4,7 @@ import pyperclip
 import requests
 from common import SearchResult, sort_search_results # these are search related items
 from common import SharedChapterClass, SharedSeriesClass # these are series and chapter related items import re
+from common import construct_chapter_not_found_image # these are error message related items
 import urllib.parse
 import re
 
@@ -249,28 +250,12 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
         chapter_to_download_url = chapter_urls[chapter_num]
 
     except:
-        # here we construct the dialog we're gonna give to the user
-        # we want the dialog to look something like this:
-
-        # '<put chapter_num here>' was not a valid chapter. These are the options to download. Type the number before the ':' to download that chapter
-        # 0: <url no. 1>
-        # 1: <url no. 2>
-        # etc
-
-        # we also check if there's no chapters just in case
+        # checking if there's no chapters just in case
         if len(chapter_urls) == 0:
             print(f'Sorry! \'{series_url}\' doesn\'t seem to have any chapters!')
 
-        # this is constructing the '0: <url no. 1>' string
-        url_list_dialog = ''
-        for i, chapter_url in enumerate(chapter_urls):
-            url_list_dialog += f'{i}: {chapter_url}\n'
-
-        # constructing the full dialog
-        full_dialog = f'{chapter_num} wasn\'t a valid chapter. There are only {len(chapter_urls)} chapters. These are the available chapters to download. To download one, type the number before the \':\'.\n{url_list_dialog}'
-
         # now we get the input from the user for what chapter num they want to download
-        new_user_chapter_num = int(input(full_dialog))
+        new_user_chapter_num = int(input(construct_chapter_not_found_image(chapter_urls, chapter_num)))
 
         # then the last step before downloading is getting the url corresponding to that number
         chapter_to_download_url = chapter_urls[new_user_chapter_num]
