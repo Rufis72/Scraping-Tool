@@ -232,3 +232,57 @@ def search(query: str, adult: bool or None = None):
 
     # finally we return the sorted search results
     return sorted_search_results
+
+def download_chapter(series_url: str, chapter_num: int, output_path: str):
+    '''Donwloads the chapter_numth chapter of a series. If the chapter number does not exist, or is invalid, it will give the user dialog to pick another option
+
+    Example Code:
+
+    from scrapers.mangabuddy import download_chapter
+
+    download_chapter('https://mangabuddy.com/the-beginning-after-the-end', 224)
+    :param series_url: The url of the series
+    :param chapter_num: The index of the chapter to be downloaded
+    :param output_path: Where the chapter's images will be saved'''
+    # first we make a series object for the series
+    series_object = Series(series_url)
+
+    # next we get all the chapter urls for that series
+    chapter_urls = series_object.get_chapter_urls()
+
+    # after that we check if the chapter_num is a valid index for the chapter_urls (aka it's not 99999 and there's only 7 chapters)
+    try:
+        # this does two things. First it checks if the chapter_num is valid, then it gets the url to the chapter we're downloading
+        chapter_to_download_url = chapter_urls[chapter_num]
+
+    except:
+        # here we construct the dialog we're gonna give to the user
+        # we want the dialog to look something like this:
+
+        # '<put chapter_num here>' was not a valid chapter. These are the options to download. Type the number before the ':' to download that chapter
+        # 0: <url no. 1>
+        # 1: <url no. 2>
+        # etc
+
+        # we also check if there's no chapters just in case
+        if len(chapter_urls) == 0:
+            print(f'Sorry! \'{series_url}\' doesn\'t seem to have any chapters!')
+
+        # this is constructing the '0: <url no. 1>' string
+        url_list_dialog = ''
+        for i, chapter_url in enumerate(chapter_urls):
+            url_list_dialog += f'{i}: {chapter_url}\n'
+
+        # constructing the full dialog
+        full_dialog = f'{chapter_num} wasn\'t a valid chapter. There are only {len(chapter_urls)} chapters. These are the available chapters to download. To download one, type the number before the \':\'.\n{url_list_dialog}'
+
+        # now we get the input from the user for what chapter num they want to download
+        new_user_chapter_num = int(input(full_dialog))
+
+        # then the last step before downloading is getting the url corresponding to that number
+        chapter_to_download_url = chapter_urls[new_user_chapter_num]
+
+
+    # now we download the chapter
+    # even if the chapter_num wasn't valid, it'll still save the new chapter_url to chapter_to_download_url
+    download(chapter_to_download_url, output_path)
