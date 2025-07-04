@@ -5,30 +5,67 @@ from common import SearchResult, generate_text_with_link, sort_search_results
 from urllib import parse
 
 
-def get_scraper_mappings() -> dict[str, dict]:
+def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
     '''This returns the mappings of a scraper's name to it's download function, search function, and everything else related to it'''
     return {
         'mangaread': {
             'url': 'mangaread.org',
             'download_function': mangaread.download,
             'search_function': mangaread.search,
+            'download_chapter_function': mangaread.download_chapter,
+            'identify_url_type_function': mangaread.identify_url_type
         },
         'manganato': {
             'url': 'natomanga.com',
             'download_function': natomanga.download,
-            'search_function': natomanga.search
+            'search_function': natomanga.search,
+            'download_chapter_function': natomanga.download_chapter,
+            'identify_url_type_function': natomanga.identify_url_type
+
         },
         'mangabuddy': {
             'url': 'mangabuddy.com',
             'download_function': mangabuddy.download,
-            'search_function': mangabuddy.search
+            'search_function': mangabuddy.search,
+            'download_chapter_function': mangabuddy.download_chapter,
+            'identify_url_type_function': mangabuddy.identify_url_type
         },
         'webtoons': {
             'url': 'webtoons.com',
             'download_function': webtoons.download,
-            'search_function': webtoons.search
+            'search_function': webtoons.search,
+            'download_chapter_function': webtoons.download_chapter,
+            'identify_url_type_function': webtoons.identify_url_type
         }
     }
+
+def download_chapter(series_url: str, chapter_num: int, output_path: str):
+    '''Downloads a chapter from a series without the full url to the chapter
+    Note: This functin gets the chapter by getting all the chapter urls for a series as a list, and gets the item at chapter_num index
+
+    Example Code:
+
+    from main import download_chapter
+
+    output_path = '/wherever/you/want/to/save/your/chapter/images/'
+
+    series_url = 'https://put.the/url/to/your/series/here'
+
+    download_chapter(series_url, 47, output_path)
+    :param series_url: The url to the series where the chapter will be gotten from
+    :param chapter_num: The chapter to be downloaded. It's used as an index for the list of chapter urls, so if there's chapters like 4.1, a chapter like 7 might not be 6.
+    :param output_path: The place where the chapter's images will be saved
+    '''
+    # first we get all the function mappings so we can get all the chapter downloading functions
+    scraper_function_mappings = get_scraper_mappings()
+
+    # now we get the scraper for our series_url
+    for scraper in scraper_function_mappings.values():
+        # this is just calling the identify url type function to see if it's a url for that scraper
+        if scraper.get('identify_url_type_function')(series_url) != None:
+            # since it matched, we call the download_chapter function for that scraper
+            scraper.get('download_chapter_function')(series_url, chapter_num, output_path)
+
 
 def download(url: str, output_path: str) -> bool:
     '''This function goes through every scraper and checks if they can download the url
@@ -110,8 +147,18 @@ def main(args):
         else:
             output_path = os.getcwd()
 
-        # now we finally download the series
-        download_function(search_results[int(one_to_download)].url, output_path)
+        # before we download it, we've gotta check if we should be downloading a specific chapter specified by the --chapter flag
+        if args.chapter:
+            # now we've gotta get the chapter_download_function too
+            # this mess of a line boils down to getting the website that the result was from, then getting that website's download function
+            chapter_download_function = (get_scraper_mappings().get(search_results[int(one_to_download)].website_id)
+                                 .get('download_chapter_function'))
+
+            # now we use that function to download the chapter
+            chapter_download_function(search_results[int(one_to_download)].url, args.chapter, output_path)
+        else:
+            # since we're not downloading a specific, chapter we download the entire series
+            download_function(search_results[int(one_to_download)].url, output_path)
 
     # this is for just downloading a url
     else:
@@ -122,8 +169,13 @@ def main(args):
             output_path = args.o
         else:
             output_path = os.getcwd()
-        download(args.text, output_path)
 
+        # here we check if we should be downloading a specific chapter
+        if args.chapter:
+            download_chapter(args.text, args.chapter, output_path)
+
+        # otherwise we just download as usual
+            download(args.text, output_path)
 
 
 if __name__ == '__main__':
@@ -137,6 +189,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', type=str, help='The output path where the extracted data will be saved')
     parser.add_argument('--search', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', type=bool, help='If search results should include adult content')
+    parser.add_argument('--chapter', type=int, help='The chapter index to be downloaded. Works with searching, and downloading a series. It will download that index from the list of chapter urls when downloading')
 
     # here we do the positional arguments like the url
     parser.add_argument('text', type=str, help='The url to be scraped and downloaded')
