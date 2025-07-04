@@ -97,55 +97,73 @@ def download(url: str, output_path: str):
     download('https://www.mangaread.org/manga/the-beginning-after-the-end/') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
-    # these are the regexs for the chapter and series respectively
+    # first we get if it's a chapter, series, or not for this scraper
+    url_type = identify_url_type(url)
+
+    # this is downloading logic for a series
+    if url_type == 'series':
+        # since it matched, we give an indication it matched to the user
+        print(f'Downloading {url}')
+
+        # first we make an object for the series
+        series_object = Series(url)
+
+        # after that we make the directory for the series. (if we're not already in it)
+        # if we are already in the directory for the series directory, the following code will be False and nothing will happen
+        if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
+            # if the directory for the series directory doesn't exist, we make it
+            if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
+                os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
+            # now we just change the output path to the new directory for the series one so we can just pass output_path to the download function either way
+            output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
+
+
+        # next we download the images
+        # the download function also saves them, so we don't have to worry about that
+        series_object.download(output_path)
+
+        # then we return True so whatever is calling this knows it matched
+        return True
+
+    # this is for chapters
+    elif url_type == 'chapter':
+        # since it matched, we give an indication it matched to the user
+        print(f'Downloading {url}')
+
+        # first we make an object for the chapter
+        chapter_object = Chapter(url)
+
+        # next we download the images
+        chapter_object.download(output_path)
+
+        # then we return True so whatever is calling this knows it matched
+        return True
+
+    # here we return false, since it wasn't a chapter for series
+    else:
+        return False
+
+def identify_url_type(url: str) -> None or 'chapter' or 'series':
+    '''Returns the type of a url. 'type' meaning if it's a series, chapter, or if it isn't a valid url for this scraper
+
+    Example Code:
+
+    from scrapers.mangaread import identify_url_type
+
+    print(identify_url_type('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224/'))
+    :param url: The url to identify the type of
+    :return: Either 'chapter', 'series', or None'''
+    # these are the regular expressions we'll be checking against
     chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-[^/]+/?')
     series_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/?')
 
-    # here we check if either match the given url
-    if chapter_regex.fullmatch(url) or series_regex.fullmatch(url):
-        # if the code got here, we know it matches so next we check if it's a series or chapter, then download it accordingly
-        # this is for series
-        if series_regex.fullmatch(url):
-            # since it matched, we give an indication it matched to the user
-            print(f'Downloading {url}')
-
-            # first we make an object for the series
-            series_object = Series(url)
-
-            # after that we make the directory for the series. (if we're not already in it)
-            # if we are already in the directory for the series directory, the following code will be False and nothing will happen
-            if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
-                # if the directory for the series directory doesn't exist, we make it
-                if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
-                    os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
-                # now we justt change the output path to the new directory for the series one so we can just pass output_path to the download function either way
-                output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
-
-
-            # next we download the images
-            # the download function also saves them, so we don't have to worry aobut that
-            series_object.download(output_path)
-
-            # then we return True so whatever is calling this knows it matched
-            return True
-
-        # this is for chapters
-        elif chapter_regex.fullmatch(url):
-            # since it matched, we give an indication it matched to the user
-            print(f'Downloading {url}')
-
-            # first we make an obejct for the chapter
-            chapter_object = Chapter(url)
-
-            # next we download the images
-            chapter_object.download(output_path)
-
-            # then we return True so whatever is calling this knows it matched
-            return True
-
+    # now we check them
+    if chapter_regex.fullmatch(url):
+        return 'chapter'
+    elif series_regex.fullmatch(url):
+        return 'series'
     else:
-        # here we return false since it didn't match anything
-        return False
+        return None
 
 def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
     '''Uses mangaread.org's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
