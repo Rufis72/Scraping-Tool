@@ -13,7 +13,6 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': mangaread.Series,
             'chapter_class_reference': mangaread.Chapter,
             'search_function': mangaread.search,
-            'download_chapter_function': mangaread.download_chapter,
             'identify_url_type_function': mangaread.identify_url_type
         },
         'manganato': {
@@ -21,7 +20,6 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': natomanga.Series,
             'chapter_class_reference': natomanga.Chapter,
             'search_function': natomanga.search,
-            'download_chapter_function': natomanga.download_chapter,
             'identify_url_type_function': natomanga.identify_url_type
 
         },
@@ -30,7 +28,6 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': mangabuddy.Series,
             'chapter_class_reference': mangabuddy.Chapter,
             'search_function': mangabuddy.search,
-            'download_chapter_function': mangabuddy.download_chapter,
             'identify_url_type_function': mangabuddy.identify_url_type
         },
         'webtoons': {
@@ -38,7 +35,6 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': webtoons.Series,
             'chapter_class_reference': webtoons.Chapter,
             'search_function': webtoons.search,
-            'download_chapter_function': webtoons.download_chapter,
             'identify_url_type_function': webtoons.identify_url_type
         }
     }
