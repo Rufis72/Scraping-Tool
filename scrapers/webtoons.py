@@ -219,4 +219,4 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
 
     # now we download the chapter
     # even if the chapter_num wasn't valid, it'll still save the new chapter_url to chapter_to_download_url
-    download(chapter_to_download_url, output_path)
+    Chapter(chapter_to_download_url).download(output_path)
