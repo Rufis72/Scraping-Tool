@@ -39,6 +39,16 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
         }
     }
 
+
+def get_scraper_function_mappings_by_url(url: str) -> dict[str, str or callable] or None:
+    '''Gets the scraper for a given url, and returns that scrapers functions'''
+    # looping through every scraper
+    for scraper_functions in get_scraper_mappings().values():
+        # checking if the url works for that scraper
+        if scraper_functions.get('indentify_url_type_function') != None:
+            # returning the scraper's functions
+            return scraper_functions
+
 def download_chapter(series_url: str, chapter_num: int, output_path: str):
     '''Donwloads the chapter_numth chapter of a series. If the chapter number does not exist, or is invalid, it will give the user dialog to pick another option
 
@@ -51,18 +61,12 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
     :param chapter_num: The index of the chapter to be downloaded
     :param output_path: Where the chapter's images will be saved'''
     # first we get the scraper for the url's functions
-    for scraper in get_scraper_mappings().values():
-        if scraper.get('identify_url_type_function')(series_url) != None:
-            scraper_functions = scraper
+    scraper_functions = get_scraper_function_mappings_by_url(series_url)
 
     # after that, we make sure we got a scraper
-    try:
-        # this would raise an error if the variable didn't exist
-        scraper_functions.get('')
-    except:
-        # here we say we couldn't find a scraper for that url
+    if scraper_functions == None:
         print(f'No scrapers matched the url \'{series_url}\'')
-        return False
+        return None
 
 
     # next we make a series object for the series using the scraper's series class we just got
@@ -94,7 +98,6 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
     # checking if we got a scraper
 
 
-
 def download(url: str, output_path: str) -> bool:
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
@@ -104,14 +107,16 @@ def download(url: str, output_path: str) -> bool:
     download('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
-    # first we go through, and get the scraper it's for, and it's type
-    for scraper in get_scraper_mappings().values():
-        # what we do is identify the url type, then if it's a str, we know it works for that scraper!
-        url_type = scraper.get('identify_url_type_function')(url)
-        scraper_functions = scraper
-        # if it worked, we break out of the loop
-        if type(url_type) == str:
-            break
+    # first we go through all the scrapers, and get the scraper the url works for (if any)
+    scraper_functions = get_scraper_function_mappings_by_url(url)
+
+    # after that, we make sure we got a scraper
+    if scraper_functions == None:
+        print(f'No scrapers matched the url \'{url}\'')
+        return False
+
+    # now we get the url's type
+    url_type = scraper_functions.get('identify_url_type_function')(url)
 
     # here we check if we should return False because no scrapers seemed to be able to download that url
     if url_type == None:
@@ -262,7 +267,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', type=str, help='The output path where the extracted data will be saved')
     parser.add_argument('--search', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', type=bool, help='If search results should include adult content')
-    parser.add_argument('--chapter', type=int, help='The chapter index to be downloaded. Works with searching, and downloading a series. It will download that index from the list of chapter urls when downloading')
+    parser.add_argument('--chapter', type=int, help='The chapter to be downloaded.')
 
     # here we do the positional arguments like the url
     parser.add_argument('text', type=str, help='The url to be scraped and downloaded')
