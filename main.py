@@ -45,7 +45,7 @@ def get_scraper_function_mappings_by_url(url: str) -> dict[str, str or callable]
     # looping through every scraper
     for scraper_functions in get_scraper_mappings().values():
         # checking if the url works for that scraper
-        if scraper_functions.get('indentify_url_type_function') != None:
+        if scraper_functions.get('identify_url_type_function')(url) != None:
             # returning the scraper's functions
             return scraper_functions
 
