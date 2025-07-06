@@ -2,6 +2,7 @@ import argparse
 import os
 from scrapers import mangaread, natomanga, mangabuddy, webtoons
 from common import SearchResult, generate_text_with_link, sort_search_results
+from common import construct_chapter_not_found_image
 from urllib import parse
 
 
@@ -44,31 +45,59 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
     }
 
 def download_chapter(series_url: str, chapter_num: int, output_path: str):
-    '''Downloads a chapter from a series without the full url to the chapter
-    Note: This functin gets the chapter by getting all the chapter urls for a series as a list, and gets the item at chapter_num index
+    '''Donwloads the chapter_numth chapter of a series. If the chapter number does not exist, or is invalid, it will give the user dialog to pick another option
 
     Example Code:
 
     from main import download_chapter
 
-    output_path = '/wherever/you/want/to/save/your/chapter/images/'
-
-    series_url = 'https://put.the/url/to/your/series/here'
-
-    download_chapter(series_url, 47, output_path)
-    :param series_url: The url to the series where the chapter will be gotten from
-    :param chapter_num: The chapter to be downloaded. It's used as an index for the list of chapter urls, so if there's chapters like 4.1, a chapter like 7 might not be 6.
-    :param output_path: The place where the chapter's images will be saved
-    '''
-    # first we get all the function mappings so we can get all the chapter downloading functions
-    scraper_function_mappings = get_scraper_mappings()
-
-    # now we get the scraper for our series_url
-    for scraper in scraper_function_mappings.values():
-        # this is just calling the identify url type function to see if it's a url for that scraper
+    download_chapter('https://mangabuddy.com/the-beginning-after-the-end', 224)
+    :param series_url: The url of the series
+    :param chapter_num: The index of the chapter to be downloaded
+    :param output_path: Where the chapter's images will be saved'''
+    # first we get the scraper for the url's functions
+    for scraper in get_scraper_mappings().values():
         if scraper.get('identify_url_type_function')(series_url) != None:
-            # since it matched, we call the download_chapter function for that scraper
-            scraper.get('download_chapter_function')(series_url, chapter_num, output_path)
+            scraper_functions = scraper
+
+    # after that, we make sure we got a scraper
+    try:
+        # this would raise an error if the variable didn't exist
+        scraper_functions.get('')
+    except:
+        # here we say we couldn't find a scraper for that url
+        print(f'No scrapers matched the url \'{series_url}\'')
+        return False
+
+
+    # next we make a series object for the series using the scraper's series class we just got
+    series_object = scraper_functions.get('series_class_reference')(series_url)
+
+    # next we get all the chapter urls for that series
+    chapter_urls = series_object.get_chapter_urls()
+
+    # after that we check if the chapter_num is a valid index for the chapter_urls (aka it's not 99999 and there's only 7 chapters)
+    try:
+        # this does two things. First it checks if the chapter_num is valid, then it gets the url to the chapter we're downloading
+        chapter_to_download_url = chapter_urls[chapter_num]
+
+    except:
+        # checking if there's no chapters just in case
+        if len(chapter_urls) == 0:
+            print(f'Sorry! \'{series_url}\' doesn\'t seem to have any chapters!')
+
+        # now we get the input from the user for what chapter num they want to download
+        new_user_chapter_num = int(input(construct_chapter_not_found_image(chapter_urls, chapter_num)))
+
+        # then the last step before downloading is getting the url corresponding to that number
+        chapter_to_download_url = chapter_urls[new_user_chapter_num]
+
+
+    # now we download the chapter
+    # even if the chapter_num wasn't valid, it'll still save the new chapter_url to chapter_to_download_url
+    scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path)
+    # checking if we got a scraper
+
 
 
 def download(url: str, output_path: str) -> bool:
