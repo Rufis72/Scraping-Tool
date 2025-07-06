@@ -48,6 +48,18 @@ class Chapter(SharedChapterClass):
     def download(self, output_path: str, show_updates_in_terminal: bool = True):
         super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.webtoons.com/'}, add_host_to_image_headers=True)
 
+    def get_name(self) -> str:
+        # first we parse the url
+        parsed_url = parse.urlparse(self.url)
+
+        # then we get the path of the url
+        url_path = parsed_url.path.strip('/')
+
+        # now we split the url by slashes, and get the second to last one (which is the chapter name)
+        chapter_name = url_path.split('/')[-2]
+
+        # finally we return the chapter name
+        return chapter_name
 
 class Series(SharedSeriesClass):
     def __init__(self, url: str):
@@ -106,6 +118,19 @@ class Series(SharedSeriesClass):
 
     def download(self, output_path: str):
         super().download(output_path, Chapter)
+
+    def get_name(self) -> str:
+        # first we get the url's path
+        url_path = parse.urlparse(self.url).path
+
+        # then we remove and slashes at the beginning or end
+        url_path = url_path.strip('/')
+
+        # finally we split the url_path by slashes and get the second to last item
+        series_name = url_path.split('/')[-2]
+
+        # now that we have the name, we just return it!
+        return series_name
 
 
 # all the functions here are for main.py

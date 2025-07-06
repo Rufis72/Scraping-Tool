@@ -3,6 +3,7 @@ import os
 from scrapers import mangaread, natomanga, mangabuddy, webtoons
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
+from common import get_correct_output_path
 
 
 def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
@@ -49,6 +50,7 @@ def get_scraper_function_mappings_by_url(url: str) -> dict[str, str or callable]
             # returning the scraper's functions
             return scraper_functions
 
+
 def download_chapter(series_url: str, chapter_num: int, output_path: str):
     '''Donwloads the chapter_numth chapter of a series. If the chapter number does not exist, or is invalid, it will give the user dialog to pick another option
 
@@ -67,7 +69,6 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
     if scraper_functions == None:
         print(f'No scrapers matched the url \'{series_url}\'')
         return None
-
 
     # next we make a series object for the series using the scraper's series class we just got
     series_object = scraper_functions.get('series_class_reference')(series_url)
@@ -91,11 +92,17 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
         # then the last step before downloading is getting the url corresponding to that number
         chapter_to_download_url = chapter_urls[new_user_chapter_num]
 
-
     # now we download the chapter
     # even if the chapter_num wasn't valid, it'll still save the new chapter_url to chapter_to_download_url
     scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path)
-    # checking if we got a scraper
+
+
+def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int, output_path: str):
+    '''Downloads multiple chapters from a series via it's series_url
+    :param series_url: The url to the series
+    :param starting_chapter_num: The starting chapter to be downloaded from
+    :param ending_chapter_num: The ending chapter to be downloaded from
+    :param output_path: The path where the chapters and the images will be saved'''
 
 
 def download(url: str, output_path: str) -> bool:
@@ -130,14 +137,12 @@ def download(url: str, output_path: str) -> bool:
         # first we make an object for the series
         series_object = scraper_functions.get('series_class_reference')(url)
 
-        # after that we make the directory for the series. (if we're not already in it)
-        # if we are already in the directory for the series directory, the following code will be False and nothing will happen
-        if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
-            # if the directory for the series directory doesn't exist, we make it
-            if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
-                os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
-            # now we just change the output path to the new directory for the series one so we can just pass output_path to the download function either way
-            output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
+        # after that we make the directory for the series. (if we're not already in it) Then we save that as our new output path
+        # the first step to doing that is getting the name of our series
+        series_name = series_object.get_name()
+
+        # now we get the correct output_path with common.py's get_correct_output_path function
+        output_path = get_correct_output_path(output_path, series_name)
 
         # next we download the images
         # the download function also saves them, so we don't have to worry about that
@@ -159,6 +164,7 @@ def download(url: str, output_path: str) -> bool:
 
         # then we return True so whatever is calling this knows it matched
         return True
+
 
 def search(query: str, adult: bool or None) -> list[SearchResult]:
     '''Searches the given query on as many sites as possible'''
@@ -183,6 +189,7 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
 
     # finally we return the search_results
     return sorted_search_results
+
 
 def main(args):
     '''Does all the downloading stuff with the passed in args'''
@@ -267,7 +274,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', type=str, help='The output path where the extracted data will be saved')
     parser.add_argument('--search', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', type=bool, help='If search results should include adult content')
-    parser.add_argument('--chapter', type=int, help='The chapter to be downloaded.')
+    parser.add_argument('--chapter', type=int, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
 
     # here we do the positional arguments like the url
     parser.add_argument('text', type=str, help='The url to be scraped and downloaded')

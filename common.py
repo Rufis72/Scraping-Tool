@@ -57,7 +57,7 @@ class SharedSeriesClass:
 
     def download(self, output_path: str, chapter_object_reference: type):
         '''This is the generic shared series class download function. It will call self.get_chapter_urls, then download them. If headers are passed in, it will use those when requesting the chapters
-        This function is mainly for organizing where chapters should go, so it doesn't do any requests on it's own. It just gets the paths to where the chapters should save their stuff
+        This function is mainly for organizing where chapters should go, so it doesn't do any requests on it's own. It just gets the paths to where the chapters should saves them
 
         Example Code:
         from common import SharedSeriesClass
@@ -93,29 +93,45 @@ class SharedSeriesClass:
 
             # then we download it and add it to downloaded_chapters
             # we also pass the output path
-            chapter_object.download(os.path.join(output_path, f'{i:04d}'))
+            chapter_object.download(os.path.join(output_path, chapter_object.get_name()))
 
     def get_chapter_urls(self, *args):
         raise Exception(f'You need to make your own get_chapter_urls method!')
+    
+    
+    def get_name(self) -> str:
+        '''Attempts to extract the name of a series, if it fails it just returns the entire url, otherwise it returns the extracted name
+        Warning: This code only does VERY basic trying to extract the name, so if your website doesn't have the name immediately after 'manga/' in the url, you shuold make your own version of this function
+
+        Example Code:
+        from common import SharedSeriesClass
+
+        # making a series class using the SharedSeriesClass as it's super class
+        class Series(SharedSeriesClass):
+            def __init__(url):
+                super().__init__(url)
+
+            def get_img_urls():
+                # put your code to extract image urls here
+
+        # making the series object
+        series_object = series('https://put.your/url/here)
+
+        # printing the series' name
+        print(series_object.get_series_name())'''
+        # first, if the url has 'manga/' we just take whatever is inbetween the part after manga/ and the next slash as it's name
+        if self.url.__contains__('manga/') and len(self.url.split('manga/')[1]) > 1:
+            return self.url.split('manga/')[1].split('/')[0]
+
+        # if the previous attempt didn't work, we just return the last part in the url
+        else:
+            return parse.urlparse(self.url).path.strip('/').split('/')[-1]
 
 class SharedChapterClass:
     '''This is a base class for all chapter classes for scrapers.
     SharedChapterClass already has a download method, so you just need to write a get_chapter_url method to get chapter urls.
-    You do need to make your own get_img_urls method
+    You do need to make your own get_img_urls method'''
 
-    Example Code:
-
-    # this should be a reference to the class, since the download method needs a reference
-
-    your_chapter_class = Chapter # do not initialize the class here
-
-    # this is if you don't want to always have to include your chapter_object_reference in the download method
-
-    def download(self, output_path):
-
-        # you can also put headers here if you need them for your scraper when downloading images
-
-        super.download(output_path, chapter_object_reference=your_chapter_class, headers={'header-name': 'header-value'})'''
     def __init__(self, url: str):
         self.url = url
 
@@ -124,6 +140,7 @@ class SharedChapterClass:
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False):
         '''The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
+        If the output paths's directory is the name of the chapter, it will save all it's images there, otherwise it will make a directory with the name of the chapter and save the images there
 
         Example Code:
         from common import SharedChapterClass
@@ -144,10 +161,8 @@ class SharedChapterClass:
         # first we get all the img urls
         img_urls = self.get_img_urls()
 
-
-        # next we make a directory for the chapter (if it doesn't already exist)
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
+        # next we make a directory for the chapter (if we're not in it already, or it already exists)
+        output_path = get_correct_output_path(output_path, self.get_name())
 
         # if enabled we print an update in terminal showing we've started the download
         if show_updates_in_terminal:
@@ -185,6 +200,49 @@ class SharedChapterClass:
         # if enabled of course
         if show_updates_in_terminal:
             print_image_download_end(self.url, len(img_urls))
+
+
+    def get_name(self) -> str:
+        '''Attempts to extract the name of a chapter, if it fails it just returns the entire url, otherwise it returns the extracted name
+        Warning: This code only does VERY basic trying to extract the name, so if your website doesn't have the name immediately after 'manga/' in the url, you shuold make your own version of this function
+
+        Example Code:
+        from common import SharedChapterClass
+
+        # making a chapter class using the SharedChapterClass as it's super class
+        class Chapter(SharedChapterClass):
+            def __init__(url):
+                super().__init__(url)
+
+            def get_img_urls():
+                # put your code to extract image urls here
+
+        # making the chapter object
+        chapter_object = Chapter('https://put.your/url/here)
+
+        # printing the chapter's name
+        print(chapter_object.get_chapter_name())'''
+        # first we make a variable for the beautified name
+        self.url = self.url
+
+        # next if the url has 'manga/' we just take whatever is inbetween the part after manga/ and the next slash as it's name
+        if self.url.__contains__('manga/') and len(self.url.split('manga/')[1].split('/')) > 1:
+            return self.url.split('manga/')[1].split('/')[1]
+
+        # if the previous attempt didn't work, we just return the last part in the url
+        else:
+            return parse.urlparse(self.url).path.strip('/').split('/')[-1]
+
+
+def get_correct_output_path(output_path: str, name: str) -> str:
+    '''If the output path's base name name equals name, then it returns output_path. Otherwise, it creates a directory inside the output_path directory with it's name being the name parameter, and returns that path'''
+    if os.path.basename() == name:
+        return output_path
+
+    else:
+        if not os.path.exists(os.path.join(output_path, name)):
+            os.mkdir(os.path.join(output_path, name))
+        return os.path.join(output_path, name)
 
 
 def generate_text_with_link(uri, label=None) -> str:

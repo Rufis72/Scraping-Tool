@@ -9,6 +9,7 @@ from urllib import parse
 class Chapter(SharedChapterClass):
     def __init__(self, url: str):
         super().__init__(url)
+        
 
     def get_img_urls(self) -> list[str]:
         '''Returns a list of all the image urls for a given chapter
@@ -38,6 +39,7 @@ class Chapter(SharedChapterClass):
 
         # finally we return the images as a list
         return stringified_url_list.split(',')
+    
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True):
         super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://mangabuddy.com/'})
@@ -68,18 +70,18 @@ class Series(SharedSeriesClass):
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # now we get the script with the bookID
+        # now we get the script with the book_id
         script_with_book_id = soup.find('body').find('script')
 
-        # now we extract the bookID from the javascript of the script_with_book_id
-        bookID = script_with_book_id.string.strip().split('\n')[0].split('= ')[1].replace(';', '')
+        # now we extract the book_id from the javascript of the script_with_book_id
+        book_id = script_with_book_id.string.strip().split('\n')[0].split('= ')[1].replace(';', '')
 
         # now that we have the book ID, we can request the full chapter list (but it'll be html, so we'll have to parse it)
-        html_full_chapter_list_response = requests.get(f'https://mangabuddy.com/api/manga/{bookID}/chapters?source=detail')
+        html_full_chapter_list_response = requests.get(f'https://mangabuddy.com/api/manga/{book_id}/chapters?source=detail')
 
         # then we make sure that request went through
         if html_full_chapter_list_response.status_code != 200:
-            raise Exception(f'Recieved status code {html_full_chapter_list_response.status_code} when requesting the expanded list of chapters at: \'https://mangabuddy.com/api/manga/{bookID}/chapters?source=detail\'')
+            raise Exception(f'Recieved status code {html_full_chapter_list_response.status_code} when requesting the expanded list of chapters at: \'https://mangabuddy.com/api/manga/{book_id}/chapters?source=detail\'')
 
         # now we parse that response
         full_chapter_list_soup = BeautifulSoup(html_full_chapter_list_response.content, 'html.parser')
