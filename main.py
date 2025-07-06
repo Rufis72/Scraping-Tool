@@ -51,7 +51,7 @@ def get_scraper_function_mappings_by_url(url: str) -> dict[str, str or callable]
             return scraper_functions
 
 
-def download_chapter(series_url: str, chapter_num: int, output_path: str):
+def download_chapter(series_url: str, chapter_num: int, output_path: str, show_updates_in_terminal: bool = True):
     '''Donwloads the chapter_numth chapter of a series. If the chapter number does not exist, or is invalid, it will give the user dialog to pick another option
 
     Example Code:
@@ -94,7 +94,7 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
 
     # now we download the chapter
     # even if the chapter_num wasn't valid, it'll still save the new chapter_url to chapter_to_download_url
-    scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path)
+    scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path, show_updates_in_terminal)
 
 
 def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int, output_path: str):
@@ -105,7 +105,7 @@ def download_chapters(series_url : str, starting_chapter_num: int, ending_chapte
     :param output_path: The path where the chapters and the images will be saved'''
 
 
-def download(url: str, output_path: str) -> bool:
+def download(url: str, output_path: str, show_updates_in_terminal: bool = True) -> bool:
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
     Example Code:
@@ -146,7 +146,7 @@ def download(url: str, output_path: str) -> bool:
 
         # next we download the images
         # the download function also saves them, so we don't have to worry about that
-        series_object.download(output_path)
+        series_object.download(output_path, show_updates_in_terminal=show_updates_in_terminal)
 
         # then we return True so whatever is calling this knows it matched
         return True
@@ -160,7 +160,7 @@ def download(url: str, output_path: str) -> bool:
         chapter_object = scraper_functions.get('chapter_class_reference')(url)
 
         # next we download the images
-        chapter_object.download(output_path)
+        chapter_object.download(output_path, show_updates_in_terminal=show_updates_in_terminal)
 
         # then we return True so whatever is calling this knows it matched
         return True
