@@ -1,10 +1,8 @@
-import os.path
 import bs4
 import pyperclip
 import requests
 from common import SearchResult, sort_search_results # these are search related items
 from common import SharedChapterClass, SharedSeriesClass # these are series and chapter related items import re
-from common import construct_chapter_not_found_image # these are error message related items
 import urllib.parse
 import re
 

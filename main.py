@@ -3,7 +3,6 @@ import os
 from scrapers import mangaread, natomanga, mangabuddy, webtoons
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
-from urllib import parse
 
 
 def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
