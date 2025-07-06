@@ -103,61 +103,6 @@ class Series(SharedSeriesClass):
 
 
 # all the functions here are for main.py
-def download(url: str, output_path: str):
-    '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
-
-    Example Code:
-    from scrapers.mangabuddy import download
-
-    download('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
-    :param url: The url we are checking if matches, and if so downloading
-    :param output_path: The output path to save the downloaded images to'''
-    # first we get if it's a chapter, series, or not for this scraper
-    url_type = identify_url_type(url)
-
-    # this is downloading logic for a series
-    if url_type == 'series':
-        # since it matched, we give an indication it matched to the user
-        print(f'Downloading {url}')
-
-        # first we make an object for the series
-        series_object = Series(url)
-
-        # after that we make the directory for the series. (if we're not already in it)
-        # if we are already in the directory for the series directory, the following code will be False and nothing will happen
-        if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
-            # if the directory for the series directory doesn't exist, we make it
-            if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
-                os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
-            # now we just change the output path to the new directory for the series one so we can just pass output_path to the download function either way
-            output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
-
-        # next we download the images
-        # the download function also saves them, so we don't have to worry about that
-        series_object.download(output_path)
-
-        # then we return True so whatever is calling this knows it matched
-        return True
-
-    # this is for chapters
-    elif url_type == 'chapter':
-        # since it matched, we give an indication it matched to the user
-        print(f'Downloading {url}')
-
-        # first we make an object for the chapter
-        chapter_object = Chapter(url)
-
-        # next we download the images
-        chapter_object.download(output_path)
-
-        # then we return True so whatever is calling this knows it matched
-        return True
-
-    # here we return false, since it wasn't a chapter for series
-    else:
-        return False
-
-
 def identify_url_type(url: str) -> None or 'chapter' or 'series':
     '''Returns the type of a url. 'type' meaning if it's a series, chapter, or if it isn't a valid url for this scraper
 

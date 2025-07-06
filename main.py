@@ -10,14 +10,16 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
     return {
         'mangaread': {
             'url': 'mangaread.org',
-            'download_function': mangaread.download,
+            'series_class_reference': mangaread.Series,
+            'chapter_class_reference': mangaread.Chapter,
             'search_function': mangaread.search,
             'download_chapter_function': mangaread.download_chapter,
             'identify_url_type_function': mangaread.identify_url_type
         },
         'manganato': {
             'url': 'natomanga.com',
-            'download_function': natomanga.download,
+            'series_class_reference': natomanga.Series,
+            'chapter_class_reference': natomanga.Chapter,
             'search_function': natomanga.search,
             'download_chapter_function': natomanga.download_chapter,
             'identify_url_type_function': natomanga.identify_url_type
@@ -25,14 +27,16 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
         },
         'mangabuddy': {
             'url': 'mangabuddy.com',
-            'download_function': mangabuddy.download,
+            'series_class_reference': mangabuddy.Series,
+            'chapter_class_reference': mangabuddy.Chapter,
             'search_function': mangabuddy.search,
             'download_chapter_function': mangabuddy.download_chapter,
             'identify_url_type_function': mangabuddy.identify_url_type
         },
         'webtoons': {
             'url': 'webtoons.com',
-            'download_function': webtoons.download,
+            'series_class_reference': webtoons.Series,
+            'chapter_class_reference': webtoons.Chapter,
             'search_function': webtoons.search,
             'download_chapter_function': webtoons.download_chapter,
             'identify_url_type_function': webtoons.identify_url_type
@@ -68,20 +72,64 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str):
 
 
 def download(url: str, output_path: str) -> bool:
-    '''This function goes through every scraper and checks if they can download the url
-    It returns True if it could find something, otherwise it returns False'''
-    # here we go through all the values of every scraper, so we can use that download_function, and see if it works
-    for scraper_data in get_scraper_mappings().values():
-        # here we save the download_function of the current scraper to a variable for readability
-        current_download_function = scraper_data.get('download_function')
+    '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
-        # now we call the function
-        # if it works (return True) we return True to let whatever is running this function know it worked, otherwise we go onto the next scraper function
-        if current_download_function(url, output_path):
-            return True
+    Example Code:
+    from main import download
 
-    # here we return False since it only could've gotten here if none of the download functions worked
-    return False
+    download('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
+    :param url: The url we are checking if matches, and if so downloading
+    :param output_path: The output path to save the downloaded images to'''
+    # first we go through, and get the scraper it's for, and it's type
+    for scraper in get_scraper_mappings().values():
+        # what we do is identify the url type, then if it's a str, we know it works for that scraper!
+        url_type = scraper.get('identify_url_type_function')(url)
+        scraper_functions = scraper
+        # if it worked, we break out of the loop
+        if type(url_type) == str:
+            break
+
+    # here we check if we should return False because no scrapers seemed to be able to download that url
+    if url_type == None:
+        return False
+
+    # this is downloading logic for a series
+    if url_type == 'series':
+        # since it matched, we give an indication it matched to the user
+        print(f'Downloading {url}')
+
+        # first we make an object for the series
+        series_object = scraper_functions.get('series_class_reference')(url)
+
+        # after that we make the directory for the series. (if we're not already in it)
+        # if we are already in the directory for the series directory, the following code will be False and nothing will happen
+        if os.path.basename(output_path) != url.strip('/').split('/')[-1]:
+            # if the directory for the series directory doesn't exist, we make it
+            if not os.path.exists(os.path.join(output_path, url.strip('/').split('/')[-1])):
+                os.mkdir(os.path.join(output_path, url.strip('/').split('/')[-1]))
+            # now we just change the output path to the new directory for the series one so we can just pass output_path to the download function either way
+            output_path = os.path.join(output_path, url.strip('/').split('/')[-1])
+
+        # next we download the images
+        # the download function also saves them, so we don't have to worry about that
+        series_object.download(output_path)
+
+        # then we return True so whatever is calling this knows it matched
+        return True
+
+    # this is for chapters
+    elif url_type == 'chapter':
+        # since it matched, we give an indication it matched to the user
+        print(f'Downloading {url}')
+
+        # first we make an object for the chapter
+        chapter_object = scraper_functions.get('chapter_class_reference')(url)
+
+        # next we download the images
+        chapter_object.download(output_path)
+
+        # then we return True so whatever is calling this knows it matched
+        return True
 
 def search(query: str, adult: bool or None) -> list[SearchResult]:
     '''Searches the given query on as many sites as possible'''
@@ -175,6 +223,7 @@ def main(args):
             download_chapter(args.text, args.chapter, output_path)
 
         # otherwise we just download as usual
+        else:
             download(args.text, output_path)
 
 
