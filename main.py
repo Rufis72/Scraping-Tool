@@ -220,29 +220,20 @@ def main(args):
         # since there were search results, we get the input from the user of which one to download
         one_to_download = input(search_results_user_prompt)
 
-        # now, we download that
-        # first we get the download function for that website
-        # this mess of a line boils down to getting the website that the result was from, then getting that website's download function
-        download_function = get_scraper_mappings().get(search_results[int(one_to_download)].website_id).get('download_function')
-
-        # now we check if -o flag has an output path, or if we should just save everything in the working directory
+        # finally, we download the chosen search result
+        # first we check if -o flag has an output path, or if we should just save everything in the working directory
         if args.o:
             output_path = args.o
         else:
             output_path = os.getcwd()
 
-        # before we download it, we've gotta check if we should be downloading a specific chapter specified by the --chapter flag
+        # before we download it, we've gotta check if we should be downloading a specific chapter specified by the --chapter flag (or -c)
         if args.chapter:
-            # now we've gotta get the chapter_download_function too
-            # this mess of a line boils down to getting the website that the result was from, then getting that website's download function
-            chapter_download_function = (get_scraper_mappings().get(search_results[int(one_to_download)].website_id)
-                                 .get('download_chapter_function'))
-
             # now we use that function to download the chapter
-            chapter_download_function(search_results[int(one_to_download)].url, args.chapter, output_path)
+            download_chapter(search_results[int(one_to_download)].url, args.chapter, output_path)
         else:
             # since we're not downloading a specific, chapter we download the entire series
-            download_function(search_results[int(one_to_download)].url, output_path)
+            download(search_results[int(one_to_download)].url, output_path)
 
     # this is for just downloading a url
     else:
@@ -274,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', type=str, help='The output path where the extracted data will be saved')
     parser.add_argument('--search', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', type=bool, help='If search results should include adult content')
-    parser.add_argument('--chapter', type=int, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
+    parser.add_argument('--chapter', '-c', type=int, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
 
     # here we do the positional arguments like the url
     parser.add_argument('text', type=str, help='The url to be scraped and downloaded')

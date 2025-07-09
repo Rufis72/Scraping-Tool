@@ -55,7 +55,7 @@ class SharedSeriesClass:
     def __init__(self, url: str):
         self.url = url
 
-    def download(self, output_path: str, chapter_object_reference: type):
+    def download(self, output_path: str, chapter_object_reference: type, show_updates_in_terminal: bool = True):
         '''This is the generic shared series class download function. It will call self.get_chapter_urls, then download them. If headers are passed in, it will use those when requesting the chapters
         This function is mainly for organizing where chapters should go, so it doesn't do any requests on it's own. It just gets the paths to where the chapters should saves them
 
@@ -93,7 +93,7 @@ class SharedSeriesClass:
 
             # then we download it and add it to downloaded_chapters
             # we also pass the output path
-            chapter_object.download(os.path.join(output_path, chapter_object.get_name()))
+            chapter_object.download(os.path.join(output_path, chapter_object.get_name()), show_updates_in_terminal=show_updates_in_terminal)
 
     def get_chapter_urls(self, *args):
         raise Exception(f'You need to make your own get_chapter_urls method!')
@@ -236,7 +236,7 @@ class SharedChapterClass:
 
 def get_correct_output_path(output_path: str, name: str) -> str:
     '''If the output path's base name name equals name, then it returns output_path. Otherwise, it creates a directory inside the output_path directory with it's name being the name parameter, and returns that path'''
-    if os.path.basename() == name:
+    if os.path.basename(output_path) == name:
         return output_path
 
     else:
