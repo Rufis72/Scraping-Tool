@@ -237,8 +237,13 @@ class SharedChapterClass:
 def get_correct_output_path(output_path: str, name: str) -> str:
     '''If the output path's base name name equals name, then it returns output_path. Otherwise, it creates a directory inside the output_path directory with it's name being the name parameter, and returns that path'''
     if os.path.basename(output_path) == name:
+        # here we make sure the directory exists, just in case
+        if not os.path.exists(output_path):
+            os.mkdir(output_path)
+        # now we return the output path
         return output_path
 
+    # otherwise since we're not already in the output path, we make a sub directory for one if it doesn't exist, then return the path to it
     else:
         if not os.path.exists(os.path.join(output_path, name)):
             os.mkdir(os.path.join(output_path, name))
