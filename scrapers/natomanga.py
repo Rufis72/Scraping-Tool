@@ -44,7 +44,7 @@ class Chapter(SharedChapterClass):
 
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True)
+        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True, replace_image_failed_error_with_warning=True)
 
 
 
