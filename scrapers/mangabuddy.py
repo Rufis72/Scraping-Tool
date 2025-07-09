@@ -31,11 +31,12 @@ class Chapter(SharedChapterClass):
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # next we get the script tag that has all the images in a variable in it
-        chapter_images_script = soup.find('div', {'id': 'viewer-page'}).find_all('script', recursive=False)[2]
-
-        # now we extract the string-ified list of all the image urls
-        stringified_url_list = chapter_images_script.string.strip().split('\'')[1]
+        # next we get all the script tags in the website to then sort through to find the correct script tag
+        chapter_images_scripts = soup.find('div', {'id': 'viewer-page'}).find_all('script', recursive=False)
+        # now we go through and get the correct script tag
+        for scrip_tag in chapter_images_scripts:
+            if scrip_tag.string.__contains__('chapImages'):
+                stringified_url_list = scrip_tag.string.strip().replace('var chapImages = ', '').replace('\'', '')
 
         # finally we return the images as a list
         return stringified_url_list.split(',')
