@@ -32,7 +32,7 @@ class Chapter(SharedChapterClass):
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
         # next we get the script tag that has all the images in a variable in it
-        chapter_images_script = soup.find('div', {'id': 'viewer-page'}).find_all('script', recursive=False)[1]
+        chapter_images_script = soup.find('div', {'id': 'viewer-page'}).find_all('script', recursive=False)[2]
 
         # now we extract the string-ified list of all the image urls
         stringified_url_list = chapter_images_script.string.strip().split('\'')[1]
