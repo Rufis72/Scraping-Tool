@@ -154,7 +154,6 @@ def identify_url_type(url: str) -> None or 'chapter' or 'series':
     elif series_regex.fullmatch(url):
         return 'series'
     else:
-        print('b')
         return None
 
 
