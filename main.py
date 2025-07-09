@@ -153,8 +153,9 @@ def download(url: str, output_path: str, show_updates_in_terminal: bool = True) 
 
     # this is downloading logic for a series
     if url_type == 'series':
-        # since it matched, we give an indication it matched to the user
-        print(f'Downloading {url}')
+        # since it matched, we give an indication it matched to the user (if enabled)
+        if show_updates_in_terminal:
+            print(f'Downloading {url}')
 
         # first we make an object for the series
         series_object = scraper_functions.get('series_class_reference')(url)
