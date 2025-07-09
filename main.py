@@ -97,12 +97,34 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str, show_u
     scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path, show_updates_in_terminal)
 
 
-def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int, output_path: str):
+def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int, output_path: str, show_updates_in_terminal: bool = True):
     '''Downloads multiple chapters from a series via it's series_url
     :param series_url: The url to the series
     :param starting_chapter_num: The starting chapter to be downloaded from
     :param ending_chapter_num: The ending chapter to be downloaded from
     :param output_path: The path where the chapters and the images will be saved'''
+    # first we get the scraper were gonna use for the url's functions
+    scraper_functions = get_scraper_function_mappings_by_url(series_url)
+
+    # then we make a series object
+    series_object = scraper_functions.get('series_class_reference')(series_url)
+
+    # giving an update for what we're doing (if enabled)
+    if show_updates_in_terminal:
+        print(f'Getting chapter urls for \'{series_url}\'')
+
+    # after that we get the chapter urls
+    chapter_urls = series_object.get_chapter_urls()
+
+    # then we get the list of the chapter url's we're gonna download
+    chapter_urls_to_download = chapter_urls[int(starting_chapter_num):int(ending_chapter_num)+1]
+
+    # after that we make a directory (if we're not already in it) for the series
+    output_path = get_correct_output_path(output_path, series_object.get_name())
+
+    # finally we just use main.py's download function to download all the chapters
+    for chapter_url_to_download in chapter_urls_to_download:
+        download(chapter_url_to_download, output_path, show_updates_in_terminal)
 
 
 def download(url: str, output_path: str, show_updates_in_terminal: bool = True) -> bool:
@@ -229,8 +251,12 @@ def main(args):
 
         # before we download it, we've gotta check if we should be downloading a specific chapter specified by the --chapter flag (or -c)
         if args.chapter:
-            # now we use that function to download the chapter
-            download_chapter(search_results[int(one_to_download)].url, args.chapter, output_path)
+            # then we check if there's a dash (if we should download multiple chapters, but not the whole series
+            if args.chapter.__contains__('-'):
+                download_chapters(search_results[int(one_to_download)].url, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1, output_path)
+            # just downloading one chapter
+            else:
+                download_chapter(search_results[int(one_to_download)].url, int(args.chapter), output_path)
         else:
             # since we're not downloading a specific, chapter we download the entire series
             download(search_results[int(one_to_download)].url, output_path)
@@ -247,7 +273,12 @@ def main(args):
 
         # here we check if we should be downloading a specific chapter
         if args.chapter:
-            download_chapter(args.text, args.chapter, output_path)
+            # then we check if there's a dash (if we should dowpnload multiple chapters, but not the whole series
+            if args.chapter.__contains__('-'):
+                download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1, output_path)
+            # just downloading one chapter
+            else:
+                download_chapter(args.text, int(args.chapter), output_path)
 
         # otherwise we just download as usual
         else:
@@ -263,9 +294,9 @@ if __name__ == '__main__':
     # here we add all the optional arguments
     # these will show up when -h or --help is called
     parser.add_argument('-o', type=str, help='The output path where the extracted data will be saved')
-    parser.add_argument('--search', action='store_true', help='If the text entered should be treated as a query or not')
+    parser.add_argument('--search', '-s', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', type=bool, help='If search results should include adult content')
-    parser.add_argument('--chapter', '-c', type=int, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
+    parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
 
     # here we do the positional arguments like the url
     parser.add_argument('text', type=str, help='The url to be scraped and downloaded')
