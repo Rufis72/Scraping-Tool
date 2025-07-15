@@ -3,9 +3,9 @@ import requests
 from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 import urllib.parse
-import re
 
 class Chapter(SharedChapterClass):
+    regex = r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-[^/]+/?'
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -44,6 +44,7 @@ class Chapter(SharedChapterClass):
 
 
 class Series(SharedSeriesClass):
+    regex = r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/?'
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -86,28 +87,6 @@ class Series(SharedSeriesClass):
         super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal)
 
 # all the functions here are for main.py
-def identify_url_type(url: str) -> None or 'chapter' or 'series':
-    '''Returns the type of a url. 'type' meaning if it's a series, chapter, or if it isn't a valid url for this scraper
-
-    Example Code:
-
-    from scrapers.mangaread import identify_url_type
-
-    print(identify_url_type('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-224/'))
-    :param url: The url to identify the type of
-    :return: Either 'chapter', 'series', or None'''
-    # these are the regular expressions we'll be checking against
-    chapter_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/chapter-[^/]+/?')
-    series_regex = re.compile(r'(https://)?(www\.)?mangaread\.org/manga/[^/]*/?')
-
-    # now we check them
-    if chapter_regex.fullmatch(url):
-        return 'chapter'
-    elif series_regex.fullmatch(url):
-        return 'series'
-    else:
-        return None
-
 def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
     '''Uses mangaread.org's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
     :param query: The string to search

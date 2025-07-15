@@ -4,6 +4,7 @@ from scrapers import mangaread, natomanga, mangabuddy, webtoons
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
 from common import get_correct_output_path
+import re
 
 
 def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
@@ -14,14 +15,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': mangaread.Series,
             'chapter_class_reference': mangaread.Chapter,
             'search_function': mangaread.search,
-            'identify_url_type_function': mangaread.identify_url_type
         },
         'manganato': {
             'url': 'natomanga.com',
             'series_class_reference': natomanga.Series,
             'chapter_class_reference': natomanga.Chapter,
             'search_function': natomanga.search,
-            'identify_url_type_function': natomanga.identify_url_type
 
         },
         'mangabuddy': {
@@ -29,14 +28,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': mangabuddy.Series,
             'chapter_class_reference': mangabuddy.Chapter,
             'search_function': mangabuddy.search,
-            'identify_url_type_function': mangabuddy.identify_url_type
         },
         'webtoons': {
             'url': 'webtoons.com',
             'series_class_reference': webtoons.Series,
             'chapter_class_reference': webtoons.Chapter,
             'search_function': webtoons.search,
-            'identify_url_type_function': webtoons.identify_url_type
         }
     }
 
@@ -44,11 +41,50 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
 def get_scraper_function_mappings_by_url(url: str) -> dict[str, str or callable] or None:
     '''Gets the scraper for a given url, and returns that scrapers functions'''
     # looping through every scraper
-    for scraper_functions in get_scraper_mappings().values():
+    for scraper_name in get_scraper_mappings().keys():
         # checking if the url works for that scraper
-        if scraper_functions.get('identify_url_type_function')(url) != None:
+        if identify_url_type(scraper_name, url) != None:
             # returning the scraper's functions
-            return scraper_functions
+            return get_scraper_mappings().get(scraper_name)
+
+def get_scraper_name_by_url(url) -> str or None:
+    '''Gets the name of a scraper via a url and returns it
+    :param url: The url to get the scraper name by
+    :returns: Either the name of the scraper, or None if nothig matched'''
+    # looping through every scraper
+    for scraper_name in get_scraper_mappings().keys():
+        # checking if the url works for that scraper
+        if identify_url_type(scraper_name, url) != None:
+            # returning the scraper's functions
+            return scraper_name
+
+
+def identify_url_type(scraper_name: str, url: str) -> str or None:
+    '''Identifys the type of a url with a specific scraper's regex for identifying urls
+
+    Example Code:
+    from main import identify_url_type
+
+    # the following code would print 'chapter' since it's a chapter
+    print(identify_url_type('webtoons', 'https://www.webtoons.com/en/action/hero-killer/episode-1/viewer?title_no=2745&episode_no=1'))
+    :returns: Either 'chapter', 'series', or None depending on if the regex for a specific scraper's chapter or series match
+    :param scraper_name: The name of the scraper in get_scraper_mappings
+    :param url: The url to be identified'''
+    # first we get the functions and classes for the given scraper
+    scraper_functions = get_scraper_mappings().get(scraper_name)
+
+    # then we get the chapter regex and series regex
+    chapter_regex = re.compile(scraper_functions.get('chapter_class_reference').regex)
+    series_regex = re.compile(scraper_functions.get('series_class_reference').regex)
+
+    # then we try to match our url against those regexs
+    if chapter_regex.fullmatch(url):
+        return 'chapter'
+    elif series_regex.fullmatch(url):
+        return 'series'
+    # since it didn't match either, we return None
+    else:
+        return None
 
 
 def download_chapter(series_url: str, chapter_num: int, output_path: str, show_updates_in_terminal: bool = True):
@@ -137,7 +173,9 @@ def download(url: str, output_path: str, show_updates_in_terminal: bool = True) 
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
     # first we go through all the scrapers, and get the scraper the url works for (if any)
-    scraper_functions = get_scraper_function_mappings_by_url(url)
+    scraper_name = get_scraper_name_by_url(url)
+    # then we get that scraper's functions via it's name
+    scraper_functions = get_scraper_mappings().get(scraper_name)
 
     # after that, we make sure we got a scraper
     if scraper_functions == None:
@@ -145,7 +183,7 @@ def download(url: str, output_path: str, show_updates_in_terminal: bool = True) 
         return False
 
     # now we get the url's type
-    url_type = scraper_functions.get('identify_url_type_function')(url)
+    url_type = identify_url_type(scraper_name, url)
 
     # here we check if we should return False because no scrapers seemed to be able to download that url
     if url_type == None:

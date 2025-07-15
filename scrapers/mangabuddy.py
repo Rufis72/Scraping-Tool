@@ -3,10 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
-import re
 from urllib import parse
 
 class Chapter(SharedChapterClass):
+    regex = r'(https://)?(www\.)?mangabuddy\.com/[^/]*/chapter-[^/]+/?'
     def __init__(self, url: str):
         super().__init__(url)
         
@@ -47,6 +47,7 @@ class Chapter(SharedChapterClass):
 
 
 class Series(SharedSeriesClass):
+    regex = r'(https://)?(www\.)?mangabuddy\.com/[^/]*/?'
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -104,29 +105,6 @@ class Series(SharedSeriesClass):
 
 
 # all the functions here are for main.py
-def identify_url_type(url: str) -> None or 'chapter' or 'series':
-    '''Returns the type of a url. 'type' meaning if it's a series, chapter, or if it isn't a valid url for this scraper
-
-    Example Code:
-
-    from scrapers.mangabuddy import identify_url_type
-
-    print(identify_url_type('https://mangabuddy.com/the-beginning-after-the-end/'))
-    :param url: The url to identify the type of
-    :return: Either 'chapter', 'series', or None'''
-    # these are the regular expressions we'll be checking against
-    chapter_regex = re.compile(r'(https://)?(www\.)?mangabuddy\.com/[^/]*/chapter-[^/]+/?')
-    series_regex = re.compile(r'(https://)?(www\.)?mangabuddy\.com/[^/]*/?')
-
-    # now we check them
-    if chapter_regex.fullmatch(url):
-        return 'chapter'
-    elif series_regex.fullmatch(url):
-        return 'series'
-    else:
-        return None
-
-
 def search(query: str, adult: bool or None = None):
     '''Uses mangabuddy.com's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
     :param query: The string to search
