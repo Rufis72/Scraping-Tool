@@ -1,8 +1,8 @@
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from common import SearchResult, sort_search_results # this is stuff for search results
-from common import SharedChapterClass, SharedSeriesClass # this is the base shared classes for Chapter and Series
+from common import SearchResult, sort_search_results
+from common import SharedChapterClass, SharedSeriesClass
 import re
 from urllib import parse
 

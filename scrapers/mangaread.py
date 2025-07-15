@@ -1,7 +1,7 @@
 import bs4
 import requests
-from common import SearchResult, sort_search_results # these are search related items
-from common import SharedChapterClass, SharedSeriesClass # these are series and chapter related items import re
+from common import SearchResult, sort_search_results
+from common import SharedChapterClass, SharedSeriesClass
 import urllib.parse
 import re
 
