@@ -96,6 +96,17 @@ class SharedSeriesClass:
             chapter_object.download(os.path.join(output_path, chapter_object.get_name()), show_updates_in_terminal=show_updates_in_terminal)
 
     def get_chapter_urls(self, *args):
+        '''Fetches a series' url and extracts the urls to that series' chapters
+
+        Example Code:
+        from scrapers.<your_scraper_here> import Series
+
+        # making the series object
+        series = Series('https://put.the/your/to/your/series/here/')
+
+        # getting the chapter urls
+        chapter_urls = Series.get_chapter_urls()
+        :returns: A list of chapter urls as strings'''
         raise Exception(f'You need to make your own get_chapter_urls method!')
     
     
@@ -136,6 +147,17 @@ class SharedChapterClass:
         self.url = url
 
     def get_img_urls(self):
+        '''Fetches a chapter and extracts the urls to that chapter's images
+
+        Example Code:
+        from scrapers.<your_scraper_here> import Chapter
+
+        # initializing the chapter object
+        chapter = Chapter('https://put.the/url/to/your/chapter/here/')
+
+        # getting the image urls
+        image_urls = Chapter.get_img_urls()
+        :returns: A list of the urls to the images as strings'''
         raise Exception(f'You need to make your own get_img_urls method!')
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False):
