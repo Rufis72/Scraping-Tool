@@ -181,7 +181,6 @@ class SharedChapterClass:
         :param add_host_to_image_headers: If the hostname should be added to headers under the header 'Host'
         '''
         # first we get all the img urls
-        print(replace_image_failed_error_with_warning)
         img_urls = self.get_img_urls()
 
         # next we make a directory for the chapter (if we're not in it already, or it already exists)
