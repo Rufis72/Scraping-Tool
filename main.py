@@ -1,6 +1,6 @@
 import argparse
 import os
-from scrapers import mangaread, natomanga, mangabuddy, webtoons
+from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
 from common import get_correct_output_path
@@ -34,7 +34,13 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'series_class_reference': webtoons.Series,
             'chapter_class_reference': webtoons.Chapter,
             'search_function': webtoons.search,
-        }
+        },
+        'mangatown': {
+            'url': 'mangatown.com',
+            'series_class_reference': mangatown.Series,
+            'chapter_class_reference': mangatown.Chapter,
+            'search_function': mangatown.search,
+        },
     }
 
 
