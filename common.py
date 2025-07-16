@@ -181,6 +181,7 @@ class SharedChapterClass:
         :param add_host_to_image_headers: If the hostname should be added to headers under the header 'Host'
         '''
         # first we get all the img urls
+        print(replace_image_failed_error_with_warning)
         img_urls = self.get_img_urls()
 
         # next we make a directory for the chapter (if we're not in it already, or it already exists)
@@ -206,10 +207,10 @@ class SharedChapterClass:
                 img_response = requests.get(img_url, headers=image_headers)
 
                 # and if that still doesn't work, we raise an error unless replace_image_vailed_error_with_warning is toggled, then we print a warning instead
-                if replace_image_failed_error_with_warning and show_updates_in_terminal:
+                if replace_image_failed_error_with_warning and show_updates_in_terminal and img_response.status_code != 200:
                     print(f'\033[91m Got status codes {status_code_one} and {img_response.status_code} when requesting \'{img_url}\'. It is highly recommended that you use another source, since downloading here may not get you all the images. This scraper has opted to replace errors with warnings, meaning this is expected behavior.\033[00m')
                 # the elif is here because the first condition needs show updates in terminal, and replace image failed error with warning to be true, but if show updates in terminal isn't, it'll still raise an error even though told not to
-                elif not replace_image_failed_error_with_warning:
+                elif not replace_image_failed_error_with_warning and img_response.status_code != 200:
                     if img_response.status_code != 200:
                         raise Exception(
                             f'Got status codes {status_code_one} when requesting \'{img_url}\'. Then we retried getting the image, got status code {img_response.status_code}')
