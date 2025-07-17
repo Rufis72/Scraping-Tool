@@ -1,13 +1,13 @@
 import argparse
 import os
-from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown
+from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
 from common import get_correct_output_path
 import re
 
 
-def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
+def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
     '''This returns the mappings of a scraper's name to it's download function, search function, and everything else related to it'''
     return {
         'mangaread': {
@@ -41,6 +41,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable]]:
             'chapter_class_reference': mangatown.Chapter,
             'search_function': mangatown.search,
         },
+        '1manga': {
+            'url': '1manga.co',
+            'series_class_reference': onemanga.Series,
+            'chapter_class_reference': onemanga.Chapter,
+            'search_function': onemanga.search,
+        }
     }
 
 
