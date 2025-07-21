@@ -344,9 +344,9 @@ if __name__ == '__main__':
 
     # here we add all the optional arguments
     # these will show up when -h or --help is called
-    parser.add_argument('-o', type=str, help='The output path where the extracted data will be saved')
+    parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
     parser.add_argument('--search', '-s', action='store_true', help='If the text entered should be treated as a query or not')
-    parser.add_argument('--adult', type=bool, help='If search results should include adult content')
+    parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
     parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
 
     # here we do the positional arguments like the url
