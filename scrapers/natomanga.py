@@ -131,7 +131,10 @@ def search(query: str, adult: bool or None = None):
         url = search_result.find('a').get('href')
         name = search_result.find('h3', {'class': 'story_name'}).text.strip()
         # now we turn it into a search result object and save it
-        search_results.append(SearchResult(name, url, 'manganato'))
+        # because for whatever reason, there's always two of something in the search results, we check if we've already added that thing
+        # if it's already there, we just don't add it
+        if len(search_results) == 0 or search_results[-1].url != url:
+            search_results.append(SearchResult(name, url, 'manganato'))
 
     # the second to last step is sorting the search results
     sorted_search_results = sort_search_results(search_results, query)
