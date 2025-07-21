@@ -5,6 +5,7 @@ from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
 from common import get_correct_output_path
 import re
+import difflib
 
 
 def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
@@ -266,11 +267,25 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
 
 def main(args):
     '''Does all the downloading stuff with the passed in args'''
-    # first we figure out if the user wants to search something
+    # first we check if the user wants to list all valid website IDs
+    if args.list_ids:
+        print('\n'.join(get_scraper_mappings().keys()))
+
+    # since they didn't want to list valid website IDs, we figure out if the user wants to search something
     # this is simple enough, since we just check if something has been passed to --search
-    if args.search:
+    elif args.search:
         # first we get the search results
-        search_results = search(args.text, args.adult)
+        # if it's a meta search (searching all websites) we use the search function
+        # otherwise we just use the scraper's search function directly
+        if args.website:
+            # here we check if the given website id is valid
+            if get_scraper_mappings().get(args.website) == None:
+                # now we tell the user that it wasn't valid, and how to get a list of them
+                print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangascraper --list-ids')
+                return
+            search_results = get_scraper_mappings().get(args.website).get('search_function')(args.text, args.adult)
+        else:
+            search_results = search(args.text, args.adult)
 
         # next, we construct the search results stuff we'll print
         search_results_user_prompt = 'Please enter the number of the manga you\'d like to download'
@@ -295,8 +310,8 @@ def main(args):
 
         # finally, we download the chosen search result
         # first we check if -o flag has an output path, or if we should just save everything in the working directory
-        if args.o:
-            output_path = args.o
+        if args.output:
+            output_path = args.output
         else:
             output_path = os.getcwd()
 
@@ -317,8 +332,8 @@ def main(args):
         # we can basically just call download, and have it do it all for us
         # the only thing we have to do is get the output path, which is simple
         # if there is no output path specified, it's the working directory, otherwise, it's whatever was specified
-        if args.o:
-            output_path = args.o
+        if args.output:
+            output_path = args.output
         else:
             output_path = os.getcwd()
 
@@ -348,6 +363,8 @@ if __name__ == '__main__':
     parser.add_argument('--search', '-s', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
     parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
+    parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
+    parser.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
 
     # here we do the positional arguments like the url
     parser.add_argument('text', type=str, help='The url to be scraped and downloaded')
