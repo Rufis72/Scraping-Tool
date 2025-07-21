@@ -160,7 +160,7 @@ class SharedChapterClass:
         :returns: A list of the urls to the images as strings'''
         raise Exception(f'You need to make your own get_img_urls method!')
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False):
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False, add_host_but_call_it_something_else: str = None):
         '''The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
         If the output paths's directory is the name of the chapter, it will save all it's images there, otherwise it will make a directory with the name of the chapter and save the images there
 
@@ -179,6 +179,7 @@ class SharedChapterClass:
         :param show_updates_in_terminal: If updates should be shown in terminal when downloading
         :param image_headers: The headers used to request images
         :param add_host_to_image_headers: If the hostname should be added to headers under the header 'Host'
+        :param add_host_but_call_it_something_else: The header name to use instead of 'Host'
         '''
         # first we get all the img urls
         img_urls = self.get_img_urls()
@@ -194,6 +195,9 @@ class SharedChapterClass:
             # first we add the hostname to headers under 'Host' if enabled
             if add_host_to_image_headers:
                 image_headers['Host'] = parse.urlparse(img_url).hostname
+
+            if add_host_but_call_it_something_else:
+                image_headers[add_host_but_call_it_something_else] = parse.urlparse(img_url).hostname
 
             # secondly we request the img
             img_response = requests.get(img_url)
