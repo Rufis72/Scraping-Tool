@@ -283,9 +283,9 @@ def main(args):
                 # now we tell the user that it wasn't valid, and how to get a list of them
                 print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangascraper --list-ids')
                 return
-            search_results = get_scraper_mappings().get(args.website).get('search_function')(args.text, args.adult)
+            search_results = get_scraper_mappings().get(args.website).get('search_function')(args.search, args.adult)
         else:
-            search_results = search(args.text, args.adult)
+            search_results = search(args.search, args.adult)
 
         # next, we construct the search results stuff we'll print
         search_results_user_prompt = 'Please enter the number of the manga you\'d like to download'
@@ -302,7 +302,7 @@ def main(args):
 
         # if there were no search results, we alert the user and end the script
         if not search_results:
-            print(f'No results found for query \'{args.text}\'')
+            print(f'No results found for query \'{args.search}\'')
             return None
 
         # since there were search results, we get the input from the user of which one to download
@@ -357,17 +357,26 @@ if __name__ == '__main__':
     # the description is the description that will appear near the top when -h or --help is called
     parser = argparse.ArgumentParser(description='Scraping Tool is a scraper with a cli coded in python3. It\'s main use is scraping manga, and manga related items.')
 
+    # create a mutually exclusive group
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    # add the --list-ids argument to the group
+    group.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
+
+    # add the text argument to the group
+    group.add_argument('text', type=str, nargs='?', help='The url to be scraped and downloaded')
+
+    # add the search argument to the group
+    group.add_argument('--search', '-s', type=str, help='If the text entered should be treated as a query or not')
+
+
     # here we add all the optional arguments
     # these will show up when -h or --help is called
     parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
-    parser.add_argument('--search', '-s', action='store_true', help='If the text entered should be treated as a query or not')
     parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
-    parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
+    parser.add_argument('--chapter', '-c', type=str,
+                        help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
     parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
-    parser.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
-
-    # here we do the positional arguments like the url
-    parser.add_argument('text', type=str, help='The url to be scraped and downloaded')
 
     # next we parse the arguments
     args = parser.parse_args()
