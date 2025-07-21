@@ -22,19 +22,45 @@ class Chapter(SharedChapterClass):
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # next we get the div with all the images
-        image_div = soup.find('div', {'id': 'viewer'})
+        # since mangatown only lets you view one image per webpage, and we don't want to request it a ton, we have to construct the urls to the images based off the first one
+        # and the first step in that is getting the image count
+        # there's a dropdown menu that has buttons for every image on the chapter, so we have to get that
+        image_dropdown = soup.find('select', {'onchange': 'javascript:location.href=this.value;'})
 
-        # then we go through every <a> tag and get the img inside of it's src
+        # then we get the text from the dropdown
+        image_dropdown_text = image_dropdown.text.strip()
+
+        # now we go through every item in the image dropdown text seperated by spaces and try converting it to a number
+        # if that works, then we save that as the image_count, and continue with the loop
+        # if it fails (because it reached the 'Featured' part at the end of the list) it'll break out of the loop, and that last saved image_count is our image count!
+        for dropdown_item_text in image_dropdown_text.split(' '):
+            try:
+                image_count = int(dropdown_item_text.lstrip('0'))
+            except:
+                break
+
+        # then before we can make all the img urls, we have to get an example one to manipulate
+        example_img = 'https://' + soup.find('img', {'id': 'image'}).get('src').strip('/')
+
+        # then the final step before making the img urls, is extracting everything but the image count. (so filetype, and the stuff before the 0001, 0002, etc)
+        filetype = example_img.split('.')[-1]
+        rest_of_img_url = '/'.join(example_img.split('/')[:-1])
+
+        # now we just construct the img_urls
         img_urls = []
-        for a_tag in image_div.find_all('a'):
-            img_urls.append('https:' + a_tag.find('img').get('src'))
+        # mangatown indexs their images at 1
+        for img_number in range(1, image_count + 1):
+            img_urls.append(f'{rest_of_img_url}/o{img_number:03d}.{filetype}')
 
         # now we return the urls
         return img_urls
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True, replace_image_failed_error_with_warning: bool = False):
         super().download(output_path, show_updates_in_terminal, {'Referer': 'https://www.mangatown.com/'}, True, replace_image_failed_error_with_warning)
+
+    def get_name(self) -> str:
+        return self.url.strip('/').split('/')[-1]
+
 
 
 class Series(SharedSeriesClass):
