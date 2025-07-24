@@ -5,12 +5,17 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
+import pyperclip
+
 class Chapter(SharedChapterClass):
-    regex = r'(https://)?(www.)?mangatown\.com/manga/[^/]*/c\d\d\d+/\d+\.html/?'
+    regex = r'(https://)?(www.)?mangatown\.com/manga/[^/]*/(v\d*/)?c\d\d\d+(/\d+\.html)?/?'
     def __init__(self, url: str):
         super().__init__(url)
 
     def get_img_urls(self) -> list[str]:
+        # giving an update that we're getting image urls, since it can take a while
+        print(f'Getting the image urls for {self.url}')
+
         # first we request the series page
         response = requests.get(self.url)
 
@@ -22,8 +27,8 @@ class Chapter(SharedChapterClass):
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
-        # since mangatown only lets you view one image per webpage, and we don't want to request it a ton, we have to construct the urls to the images based off the first one
-        # and the first step in that is getting the image count
+        # mangatown has one image per page, so we have to request all those pages
+        # the first step in doing that is getting the image count
         # there's a dropdown menu that has buttons for every image on the chapter, so we have to get that
         image_dropdown = soup.find('select', {'onchange': 'javascript:location.href=this.value;'})
 
@@ -39,24 +44,40 @@ class Chapter(SharedChapterClass):
             except:
                 break
 
-        # then before we can make all the img urls, we have to get an example one to manipulate
-        example_img = 'https://' + soup.find('img', {'id': 'image'}).get('src').strip('/')
+        # here we give an update for every image downloaded
+        print(f'{self.url}: Image page 0/{image_count}', end='')
 
-        # then the final step before making the img urls, is extracting everything but the image count. (so filetype, and the stuff before the 0001, 0002, etc)
-        filetype = example_img.split('.')[-1]
-        rest_of_img_url = '/'.join(example_img.split('/')[:-1])
-
-        # now we just construct the img_urls
         img_urls = []
-        # mangatown indexs their images at 1
-        for img_number in range(1, image_count + 1):
-            img_urls.append(f'{rest_of_img_url}/o{img_number:03d}.{filetype}')
 
-        # now we return the urls
+        # now that we have the image count, we get every page and get it's image
+        for image_number in range(1, image_count + 1):
+            url = f'{self.url.strip('/')}/{image_number}.html'
+
+            # requesting the url
+            response = requests.get(url)
+
+            # making sure we got a status code 200
+            if response.status_code != 200:
+                raise Exception(
+                    f'Recieved status code {response.status_code} when requesting the page at \'{url}\'')
+
+            # now that we know the request went through, we parse the webpage
+            soup = bs4.BeautifulSoup(response.content, 'html.parser')
+
+            # then we get the img and add it to the list of imgs
+            img_urls.append('https://' + soup.find('img', {'id': 'image'}).get('src').strip('/'))
+
+            # we also give an update that we finished getting that image page
+            print(f'\r{self.url}: Image page {image_number}/{image_count}', end='')
+
+        # now we print something to finish off the image page updates
+        print(f'\r{self.url}: Image page {image_count}/{image_count}')
+
+        # finally we return the imgs we got
         return img_urls
 
     def download(self, output_path: str, show_updates_in_terminal: bool = True, replace_image_failed_error_with_warning: bool = False):
-        super().download(output_path, show_updates_in_terminal, {'Referer': 'https://www.mangatown.com/'}, True, replace_image_failed_error_with_warning)
+        super().download(output_path, show_updates_in_terminal, {'Referer': 'https://www.mangatown.com/'}, True, replace_image_failed_error_with_warning, add_host_but_call_it_something_else='Alt-Used')
 
     def get_name(self) -> str:
         return self.url.strip('/').split('/')[-1]
@@ -80,6 +101,11 @@ class Series(SharedSeriesClass):
 
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
+
+        # first we make sure that the content wasn't dmca-ed
+        if soup.find('div', {'class': 'chapter_content'}).text.__contains__('it is not available in MangaTown'):
+            print(f'{self.url} is not avalible on mangatown, it seems to have been dmca-ed. \"{soup.find('div', {'class': 'chapter_content'}).text.strip()}\"')
+            return []
 
         # now we get the <ul> with all the chapter urls in it
         chapter_ul = soup.find('ul', {'class': 'chapter_list'})
