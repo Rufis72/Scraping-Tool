@@ -5,8 +5,6 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
-import pyperclip
-
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www.)?mangatown\.com/manga/[^/]*/(v\d*/)?c\d\d\d+(/\d+\.html)?/?'
     def __init__(self, url: str):
