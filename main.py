@@ -252,12 +252,17 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
         # we save the search function to a variable for readability
         search_function = scraper.get('search_function')
 
-        # now we call the search function, and append it's result to our list of search results
-        # we only take the top result, so that the list of results doesn't become overwhelming
-        search_result = search_function(query, adult)
-        # we check if there are any search results, otherwise we don't add it to search results
-        if search_result:
-            search_results.append(search_function(query, adult)[0])
+        # we use try here in case we get an error around getting an error code when requesting the website
+        try:
+            # now we call the search function, and append it's result to our list of search results
+            # we only take the top result, so that the list of results doesn't become overwhelming
+            search_result = search_function(query, adult)
+            # we check if there are any search results, otherwise we don't add it to search results
+            if search_result:
+                search_results.append(search_function(query, adult)[0])
+        except Exception as e:
+            print(e)
+            #print(f'Got error with text: \'{e}\' when searching on scraper with the url {scraper.get('url')}')
 
     # next we sort the search results to make sure the best are at the top
     sorted_search_results = sort_search_results(search_results, query)
@@ -284,6 +289,7 @@ def main(args):
                 # now we tell the user that it wasn't valid, and how to get a list of them
                 print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangascraper --list-ids')
                 return
+            # we try here in case we get an error
             search_results = get_scraper_mappings().get(args.website).get('search_function')(args.search, args.adult)
         else:
             search_results = search(args.search, args.adult)
