@@ -113,7 +113,7 @@ def search(query: str, adult: bool or None = None):
     url_safe_query = parse.quote(query)
 
     # next we put the url safe query into a url
-    search_url = f'https://www.mangabuddy.com/search?q={url_safe_query}&page=1'
+    search_url = f'https://mangabuddy.com/search?q={url_safe_query}&page=1'
 
     # we add a thing to make it show adult content if enabled
     if adult:
