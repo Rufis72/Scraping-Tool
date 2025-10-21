@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import os
 from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga
