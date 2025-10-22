@@ -2,6 +2,8 @@ import difflib
 import os
 from urllib import parse
 import requests
+import random
+import string
 
 class SearchResult:
     '''This is the class for search results from manga websites
@@ -404,3 +406,7 @@ def construct_chapter_not_found_image(chapter_urls: list[str], input_chapter: in
 
     # now we return the dialog
     return full_dialog
+
+def generate_random_string(length: int) -> str:
+    '''Returns a string of length length with randomly chosen ascii characters'''
+    return ''.join([random.choice(string.ascii_letters) for i in range(length)])
