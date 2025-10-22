@@ -270,6 +270,16 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
     # finally we return the search_results
     return sorted_search_results
 
+def format(file_format: str, content_type: str):
+    '''Formats downloaded content in a given file format
+    :param file_format: The file format to have the content formatted as. (i.e. PDF, EPUB, etc)
+    :param content_type: The type of content, either 'webtoon' or 'manga' defaults to manga, but can be changed with passing --content-format'''
+    # giving a warning that the format type defaulted to manga if none was given
+    if content_type == None:
+        print('No content type was given for formatting, meaning it will default to formatting the content as manga. To format a webtoon pass \'--content-format webtoon\'')
+        content_type = 'manga'
+
+    
 
 def main(args):
     '''Does all the downloading stuff with the passed in args'''
