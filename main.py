@@ -277,6 +277,10 @@ def main(args):
     if args.list_ids:
         print('\n'.join(get_scraper_mappings().keys()))
 
+    # replacing : to - for -c and --chapters so you can do 1:20 or 1-20
+    if args.chapter:
+        args.chapter = args.chapter.replace(':', '-')
+
     # since they didn't want to list valid website IDs, we figure out if the user wants to search something
     # this is simple enough, since we just check if something has been passed to --search
     elif args.search:
@@ -382,7 +386,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
     parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
     parser.add_argument('--chapter', '-c', type=str,
-                        help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4')
+                        help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4, or --chapter 0:4')
     parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
 
     # next we parse the arguments
