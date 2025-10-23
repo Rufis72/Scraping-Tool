@@ -45,6 +45,10 @@ class PDFMangaSeries:
         # getting every chapter in the directory
         chapter_directory_names = sorted([d for d in os.listdir(self.content_path) if os.path.isdir(os.path.join(self.content_path, d))])
 
+        # raising an error if there's no directorys in the passed directory
+        if len(chapter_directory_names) == 0:
+            raise Exception(f'{self.content_path} does not appear to have any directories in it. Are you sure it\'s a series directory?')
+
         # formatting a pdf for every chapter temporarily
         # first we make a directory to save these in
         # if the output_path is a directory, we just add temp-[32 random characters] to the path, otherwise we add temp-[32 random characters] to the output_path's parent directory
