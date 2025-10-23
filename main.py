@@ -476,7 +476,7 @@ if __name__ == '__main__':
     parser.add_argument('--is-series', type=bool, help='If the content to be formatted is a series. Only neccessary if the content being formatted wasn\'t downloaded with this command')
     parser.add_argument('--unformatted-content-path', type=str, help='The path to the content to be formatted. Only neccessary if the content being formatted wasn\'t downloaded with this command')
     parser.add_argument('--chapters-per-file', type=int, help='The amount of chapters/episodes to put per file. Requires -o to be a directory', default=None)
-    parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file')
+    parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
 
     # next we parse the arguments
     args = parser.parse_args()
