@@ -100,7 +100,3 @@ class PDFMangaSeries:
 
         # deleting the temp directory
         shutil.rmtree(temp_path)
-
-
-a = PDFMangaSeries('/home/Rufis/scraping-tool-dev/Scraping-Tool-1/dr-stone_108')
-a.format('/home/Rufis/scraping-tool-dev/Scraping-Tool-1')

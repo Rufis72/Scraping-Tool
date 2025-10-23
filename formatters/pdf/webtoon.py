@@ -129,6 +129,3 @@ class PDFWebtoonSeries:
 
         # deleting the temp directory
         shutil.rmtree(temp_path)
-
-a = PDFWebtoonSeries('/home/Rufis/scraping-tool-dev/Scraping-Tool-1/hero-killer')
-a.format('/home/Rufis/scraping-tool-dev/Scraping-Tool-1/scrapers/test.pdf')
