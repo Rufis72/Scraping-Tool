@@ -45,7 +45,6 @@ class PDFWebtoonChapter:
         image_y = page_y
 
         for i, image_path in enumerate(image_filenames):
-            print(image_path)
             c.drawImage(
                 image_path,
                 0,
@@ -111,13 +110,10 @@ class PDFWebtoonSeries:
             # first we get the chapters we're merging
             pdfs_to_merge_paths = sorted(chapter_pdf_paths)[i * chapters_per_pdf:(min(len(chapter_directory_names), (i + 1) * chapters_per_pdf))]
 
-            print(chapter_pdf_paths)
-
             # then we merge them
             merger = PdfMerger()
 
             for pdf in pdfs_to_merge_paths:
-                print(pdf)
                 merger.append(pdf)
 
             # saving the file

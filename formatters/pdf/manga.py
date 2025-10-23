@@ -86,7 +86,6 @@ class PDFMangaSeries:
             merger = PdfMerger()
 
             for pdf in pdfs_to_merge_paths:
-                print(pdf)
                 merger.append(pdf)
 
             # saving the file
