@@ -109,7 +109,7 @@ class PDFWebtoonSeries:
         # now we merge them
         for i in range(math.ceil(len(chapter_directory_names) / chapters_per_pdf)):
             # first we get the chapters we're merging
-            pdfs_to_merge_paths = sorted(chapter_pdf_paths)[i * chapters_per_pdf:min(len(chapter_directory_names) - 1, (i + 1) * chapters_per_pdf)]
+            pdfs_to_merge_paths = sorted(chapter_pdf_paths)[i * chapters_per_pdf:(min(len(chapter_directory_names), (i + 1) * chapters_per_pdf))]
 
             print(chapter_pdf_paths)
 
