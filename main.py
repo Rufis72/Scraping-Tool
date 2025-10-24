@@ -433,8 +433,8 @@ def main(args):
 
         # getting the path to the content to be formatted
         # checking if this command downloaded stuff (then it's just output_path)
-        if args.unformatted_content_path:
-            content_path = args.unformatted_content_path
+        if args.input:
+            content_path = args.input
         elif args.text or args.search:
             content_path = output_path
 
@@ -474,12 +474,14 @@ if __name__ == '__main__':
     parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
     parser.add_argument('--content-format', type=str, help='The type of the content to be formatted (\'webtoon\'/\'manga\')')
     parser.add_argument('--is-series', type=bool, help='If the content to be formatted is a series. Only neccessary if the content being formatted wasn\'t downloaded with this command')
-    parser.add_argument('--unformatted-content-path', type=str, help='The path to the content to be formatted. Only neccessary if the content being formatted wasn\'t downloaded with this command')
+    parser.add_argument('--input', '-i', type=str, help='The path to the content to be formatted. Only neccessary if the content being formatted wasn\'t downloaded with this command')
     parser.add_argument('--chapters-per-file', type=int, help='The amount of chapters/episodes to put per file. Requires -o to be a directory', default=None)
     parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
 
     # next we parse the arguments
     args = parser.parse_args()
+
+    print(args.text)
 
     # finally we call the main function with all the args we just got
     main(args)
