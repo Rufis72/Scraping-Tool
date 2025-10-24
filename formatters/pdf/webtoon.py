@@ -89,6 +89,9 @@ class PDFWebtoonSeries:
         chapter_pdf_paths = []
 
         for i, chapter_directory_name in enumerate(chapter_directory_names):
+            # giving an update to the user that we've started making pdfs for the chapters
+            print(f'Started formatting episode {i} as a PDF')
+
             # then we format everything and save it there
             # first we make a PDFWebtoonChapter object for the chapter
             chapter_object = PDFWebtoonChapter(os.path.join(self.content_path, chapter_directory_name))
@@ -107,6 +110,9 @@ class PDFWebtoonSeries:
 
         # now we merge them
         for i in range(math.ceil(len(chapter_directory_names) / chapters_per_pdf)):
+            # telling the user we're merging the PDFs
+            print(f'Started merging the individual episode PDFs ({i + 1}/{math.ceil(len(chapter_directory_names) / chapters_per_pdf)})')
+
             # first we get the chapters we're merging
             pdfs_to_merge_paths = sorted(chapter_pdf_paths)[i * chapters_per_pdf:(min(len(chapter_directory_names), (i + 1) * chapters_per_pdf))]
 

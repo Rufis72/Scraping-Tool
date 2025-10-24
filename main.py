@@ -481,7 +481,5 @@ if __name__ == '__main__':
     # next we parse the arguments
     args = parser.parse_args()
 
-    print(args.text)
-
     # finally we call the main function with all the args we just got
     main(args)
