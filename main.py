@@ -317,6 +317,14 @@ def format(args):
         args.input = os.getcwd
     formatting_object = formatting_class(args.input)
 
+    # attempting to infer the series name if --series-name is not passed, we're formatting a series, and --infer-series-name is True
+    if args.infer_series_name and args.series_name == None and args.is_series:
+        args.series_name = os.path.basename(os.path.abspath(args.input))
+
+    # otherwise, we set series_name to '' if it wasn't passed
+    elif args.series_name == None:
+        args.series_name = ''
+
     # now we format it
     # there's different logic for chapter/episodes and series
     # for series
@@ -464,6 +472,7 @@ if __name__ == '__main__':
     format_parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
     format_parser.add_argument('--file-type', type=str, help='The file format to formata the content into. Only required if -o isn\'t a path to a file (~/output/file.pdf)')
     format_parser.add_argument('--series-name', type=str, help='The name of the series. Defaults to \'\', only used if using --chapters-per-file')
+    format_parser.add_argument('--infer-series-name', type=bool, help='If --series-name should try to be inferred if not passed', default=True)
 
     # next we parse the arguments
     args = parser.parse_args()
