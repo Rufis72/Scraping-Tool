@@ -67,9 +67,9 @@ class PDFMangaSeries:
         # first we make a directory to save these in
         # if the output_path is a directory, we just add temp-[32 random characters] to the path, otherwise we add temp-[32 random characters] to the output_path's parent directory
         if os.path.isdir(output_path):
-            temp_path = os.path.join(output_path, f'temp-{common.generate_random_string(32)}')
+            temp_path = os.path.join(output_path, f'.temp-{common.generate_random_string(32)}')
         else:
-            temp_path = os.path.join(os.path.dirname(output_path), f'temp-{common.generate_random_string(32)}')
+            temp_path = os.path.join(os.path.dirname(output_path), f'.temp-{common.generate_random_string(32)}')
         os.mkdir(temp_path)
 
         chapter_pdf_paths = []
@@ -112,12 +112,12 @@ class PDFMangaSeries:
             # saving the file
             # if the output path is a directory, we add the formatted pdf chapter name to the output path, otherwise, we just use the passed output_path
             if os.path.isdir(output_path):
-                output_path = os.path.join(
+                new_output_path = os.path.join(
                     output_path, 
                     pdf_chapter_naming_scheme.replace('[series_name]', series_name).replace('[chapter_start]', str(i * chapters_per_pdf)).replace('[chapter_end]', str(min(len(chapter_directory_names) - 1, (i + 1) * chapters_per_pdf))) + '.pdf'
                 )
-            
-            merger.write(output_path)
+
+            merger.write(new_output_path)
             merger.close()
 
         # deleting the temp directory

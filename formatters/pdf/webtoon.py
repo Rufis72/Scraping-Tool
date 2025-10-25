@@ -95,9 +95,9 @@ class PDFWebtoonSeries:
         # first we make a directory to save these in
         # if the output_path is a directory, we just add temp-[32 random characters] to the path, otherwise we add temp-[32 random characters] to the output_path's parent directory
         if os.path.isdir(output_path):
-            temp_path = os.path.join(output_path, f'temp-{common.generate_random_string(32)}')
+            temp_path = os.path.join(output_path, f'.temp-{common.generate_random_string(32)}')
         else:
-            temp_path = os.path.join(os.path.dirname(output_path), f'temp-{common.generate_random_string(32)}')
+            temp_path = os.path.join(os.path.dirname(output_path), f'.temp-{common.generate_random_string(32)}')
         os.mkdir(temp_path)
 
         chapter_pdf_paths = []
