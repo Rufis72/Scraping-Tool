@@ -5,6 +5,7 @@ import common
 import math
 import shutil
 from PIL import Image
+from common import sort_strings_naturally
 
 class PDFWebtoonChapter:
     '''A class for saving a chapter as a PDF, formatted as a webtoon'''
@@ -88,7 +89,8 @@ class PDFWebtoonSeries:
 
         chapter_pdf_paths = []
 
-        for i, chapter_directory_name in enumerate(chapter_directory_names):
+        # we sort the chapters here, since because of how naming works (they're taken from the website directly), there isn't typically leading 0s
+        for i, chapter_directory_name in enumerate(sort_strings_naturally(chapter_directory_names)):
             # giving an update to the user that we've started making pdfs for the chapters
             print(f'Started formatting episode {i} as a PDF')
 

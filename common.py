@@ -4,6 +4,7 @@ from urllib import parse
 import requests
 import random
 import string
+import re
 
 class SearchResult:
     '''This is the class for search results from manga websites
@@ -410,3 +411,14 @@ def construct_chapter_not_found_image(chapter_urls: list[str], input_chapter: in
 def generate_random_string(length: int) -> str:
     '''Returns a string of length length with randomly chosen ascii characters'''
     return ''.join([random.choice(string.ascii_letters) for i in range(length)])
+
+
+def sort_strings_naturally(strings):
+    '''Sorts text so that ['chapter-1', 'chapter-10', 'chapter-3'] would be sorted as ['chapter-1', 'chapter-3', 'chapter-10']'''
+    # this code is taken from the internet, so sorry if the comments aren't great
+    def natural_sort_key(s):
+        # split the string into numeric and non-numeric components
+        return [int(text) if text.isdigit() else text.lower() for text in re.split('(\d+)', s)]
+
+    # sort the list in place using the natural sort key
+    return sorted(strings, key=natural_sort_key)

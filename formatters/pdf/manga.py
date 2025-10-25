@@ -4,6 +4,7 @@ import os
 import common
 import math
 import shutil
+from common import sort_strings_naturally
 
 class PDFMangaChapter:
     '''A class for saving a chapter as a PDF'''
@@ -21,6 +22,11 @@ class PDFMangaChapter:
         for filename in sorted(os.listdir(self.content_path)):
             if ['.png', '.jpeg', '.jpg', '.gif'].__contains__(os.path.splitext(filename)[-1].lower()):
                 images.append(Image.open(os.path.join(self.content_path, filename)))
+
+        # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty
+        if len(images) == 0:
+            print(f'Could not find any images in directory {self.content_path}. Skipping...')
+            return None
 
         # adding output.pdf to the output_path if output_path is a directory
         if os.path.isdir(output_path):
@@ -60,7 +66,8 @@ class PDFMangaSeries:
 
         chapter_pdf_paths = []
 
-        for i, chapter_directory_name in enumerate(chapter_directory_names):
+        # we sort the chapters here, since because of how naming works (they're taken from the website directly), there isn't typically leading 0s
+        for i, chapter_directory_name in enumerate(sort_strings_naturally(chapter_directory_names)):
             # giving an update to the user that we've started making pdfs for the chapters
             print(f'Started formatting chapter {i} as a PDF')
 
@@ -84,7 +91,7 @@ class PDFMangaSeries:
         for i in range(math.ceil(len(chapter_directory_names) / chapters_per_pdf)):
             # telling the user we're merging the PDFs
             print(f'Started merging the individual chapter PDFs ({i + 1}/{math.ceil(len(chapter_directory_names) / chapters_per_pdf)})')
-            
+
             # first we get the chapters we're merging
             pdfs_to_merge_paths = sorted(chapter_pdf_paths)[i * chapters_per_pdf:(min(len(chapter_directory_names), (i + 1) * chapters_per_pdf))]
 
