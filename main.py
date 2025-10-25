@@ -329,7 +329,7 @@ def main(args):
 
     # since they didn't want to list valid website IDs, we figure out if the user wants to search something
     # this is simple enough, since we just check if something has been passed to --search
-    elif args.search:
+    if args.search:
         # first we get the search results
         # if it's a meta search (searching all websites) we use the search function
         # otherwise we just use the scraper's search function directly
