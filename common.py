@@ -259,11 +259,11 @@ class SharedChapterClass:
 
         # next if the url has 'manga/' we just take whatever is inbetween the part after manga/ and the next slash as it's name
         if self.url.__contains__('manga/') and len(self.url.split('manga/')[1].split('/')) > 1:
-            return self.url.split('manga/')[1].split('/')[1]
+            return self.url.split('manga/')[1].split('/')[1].replace('_', '-')
 
         # if the previous attempt didn't work, we just return the last part in the url
         else:
-            return parse.urlparse(self.url).path.strip('/').split('/')[-1]
+            return parse.urlparse(self.url).path.strip('/').split('/')[-1].replace('_', '-')
 
 
 def get_correct_output_path(output_path: str, name: str) -> str:
