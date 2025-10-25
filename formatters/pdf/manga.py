@@ -1,5 +1,5 @@
 from PIL import Image
-from PyPDF2 import PdfMerger
+from PyPDF2 import PdfMerger, PdfWriter
 import os
 import common
 import math
@@ -24,8 +24,16 @@ class PDFMangaChapter:
                 images.append(Image.open(os.path.join(self.content_path, filename)))
 
         # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty
+        # we just make an empty pdf to satisfy the Series pdf merging
         if len(images) == 0:
             print(f'Could not find any images in directory {self.content_path}. Skipping...')
+
+            # making the empty pdf
+            writer = PdfWriter()
+            # saving it
+            with open(output_path, 'wb') as f:
+                writer.write(f)
+
             return None
 
         # adding output.pdf to the output_path if output_path is a directory
