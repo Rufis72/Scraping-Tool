@@ -306,7 +306,7 @@ def format(args):
 
         # if it wasn't able to be inferred, then we raise an error
         else:
-            raise Exception(f'No file format for the output file(s) was passed, and none was able to be inferred from -i (\'{args.output}\'). To specify the file format, pass the file format as --file-format, or specify it in -o with something like \'~/output/file.pdf\'')
+            raise Exception(f'No file format for the output file(s) was passed, and none was able to be inferred from -i (\'{args.output}\'). To specify the file format, pass the file format as --file-type (ex \'--file-type pdf\'), or specify it in -o with something like \'~/output/file.pdf\'')
 
     # now we use that dict to get the class we're using for formatting
     formatting_class = format_imports.get(args.file_type.lower().lstrip('.')).get(args.content_type).get(args.is_series)
