@@ -148,7 +148,7 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str, show_u
     scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path, show_updates_in_terminal)
 
 
-def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int, output_path: str, show_updates_in_terminal: bool = True):
+def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int or None, output_path: str, show_updates_in_terminal: bool = True):
     '''Downloads multiple chapters from a series via it's series_url
     :param series_url: The url to the series
     :param starting_chapter_num: The starting chapter to be downloaded from
@@ -168,6 +168,11 @@ def download_chapters(series_url : str, starting_chapter_num: int, ending_chapte
     chapter_urls = series_object.get_chapter_urls()
 
     # then we get the list of the chapter url's we're gonna download
+    # if the user passed in something like 1- or 4:, then we download chapters 4-[end_of_list]
+    # the way we do that is if ending_chapter_num is None, we set it to len(chapter_urls) - 1
+    if ending_chapter_num == None:
+        ending_chapter_num = len(chapter_urls) - 1
+
     chapter_urls_to_download = chapter_urls[int(starting_chapter_num):int(ending_chapter_num)+1]
 
     # after that we make a directory (if we're not already in it) for the series
@@ -175,16 +180,16 @@ def download_chapters(series_url : str, starting_chapter_num: int, ending_chapte
 
     # finally we just use main.py's download function to download all the chapters
     for chapter_url_to_download in chapter_urls_to_download:
-        download(chapter_url_to_download, output_path, show_updates_in_terminal)
+        download_series(chapter_url_to_download, output_path, show_updates_in_terminal)
 
 
-def download(url: str, output_path: str, show_updates_in_terminal: bool = True) -> bool:
+def download_series(url: str, output_path: str, show_updates_in_terminal: bool = True) -> bool:
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
     Example Code:
     from main import download
 
-    download('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
+    download_series('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading
     :param output_path: The output path to save the downloaded images to'''
     # first we go through all the scrapers, and get the scraper the url works for (if any)
@@ -271,21 +276,12 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
     # finally we return the search_results
     return sorted_search_results
 
-def format(file_format: str, content_path: str, content_type: str, output_path: str, is_series: bool, chapters_per_pdf: int = None, series_name: str = '', chapter_naming_scheme: str = '[series_name] chapter [chapter_start]-[chapter_end]'):
-    '''Formats downloaded content in a given file format
-    :param file_format: The file format to have the content formatted as. (i.e. PDF, EPUB, etc)
-    :param content_type: The type of content, either 'webtoon' or 'manga' defaults to manga, but can be changed with passing --content-format
-    :param content_path: The path to the content to be formatted
-    :param output_path: The path where the file(s) will be saved. If it's a directory, the output will be saved to output_path/output.pdf, or if the user wants to split the content into multiple files, output_path/[series_name] chapter [chapter_start]-[chapter_end]
-    :param is_series: If the content being formatted is a chapter/episode, or an entire series. (True is series, False is chapter/episode)
-    :param chapters_per_pdf: (ONLY for if the content is a series) How many chapters/episodes to put per file. This requires output_path to be a directory, since it will be saving the files to output_path/[series_name] chapter [chapter_start]-[chapter_end]
-    :param series_name: The name of the series, only to be used in conjunction with chapter_naming_scheme, and chapters_per_pdf. It determines the way that the multiple files will be named.
-    :param chapter_naming_scheme: The naming scheme for how to save the multiple files to be formatted if using chapters_per_pdf
-    '''
+def format(args):
+    '''The function for handling the subcommand format'''
     # giving a warning that the format type defaulted to manga if none was given
-    if content_type == None:
+    if args.content_format == None:
         print('No content type was given for formatting, meaning it will default to formatting the content as manga. To format a webtoon pass \'--content-format webtoon\'')
-        content_type = 'manga'
+        args.content_type = 'manga'
 
     # a dict for the different imports for formatting, to avoid a ton of if statements
     format_imports = {
@@ -301,23 +297,37 @@ def format(file_format: str, content_path: str, content_type: str, output_path: 
         },
     }
 
+    # attempting to infer the file format from -o if none was given (so if -o is ~/output/file.pdf for example)
+    # if -o was a directory, then we raise an error
+    if args.file_type == None:
+        # trying to get the filetype
+        if not os.path.isdir(args.output):
+            args.file_type = os.path.splitext(args.output)[1]
+
+        # if it wasn't able to be inferred, then we raise an error
+        else:
+            raise Exception(f'No file format for the output file(s) was passed, and none was able to be inferred from -i (\'{args.output}\'). To specify the file format, pass the file format as --file-format, or specify it in -o with something like \'~/output/file.pdf\'')
+
     # now we use that dict to get the class we're using for formatting
-    formatting_class = format_imports.get(file_format.lower().lstrip('.')).get(content_type).get(is_series)
+    formatting_class = format_imports.get(args.file_type.lower().lstrip('.')).get(args.content_type).get(args.is_series)
 
     # now we initialize the object
-    formatting_object = formatting_class(content_path)
+    # if -i wasn't passed, we default to the current directory
+    if args.input == None:
+        args.input = os.getcwd
+    formatting_object = formatting_class(args.input)
 
     # now we format it
     # there's different logic for chapter/episodes and series
     # for series
-    if is_series:
-        formatting_object.format(output_path, chapters_per_pdf, chapter_naming_scheme, series_name)
+    if args.is_series:
+        formatting_object.format(args.output, args.chapters_per_file, args.chapter_naming_scheme, args.series_name)
     # for chapter/episodes
     else:
-        formatting_object.format(output_path)
+        formatting_object.format(args.output)
 
 
-def main(args):
+def download(args):
     '''Does all the downloading stuff with the passed in args'''
     # first we check if the user wants to list all valid website IDs
     if args.list_ids:
@@ -376,13 +386,13 @@ def main(args):
         if args.chapter:
             # then we check if there's a dash (if we should download multiple chapters, but not the whole series
             if args.chapter.__contains__('-'):
-                download_chapters(search_results[int(one_to_download)].url, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1, output_path)
+                download_chapters(search_results[int(one_to_download)].url, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path)
             # just downloading one chapter
             else:
                 download_chapter(search_results[int(one_to_download)].url, int(args.chapter), output_path)
         else:
             # since we're not downloading a specific, chapter we download the entire series
-            download(search_results[int(one_to_download)].url, output_path)
+            download_series(search_results[int(one_to_download)].url, output_path)
 
     # this is for just downloading a url
     elif args.text:
@@ -398,49 +408,14 @@ def main(args):
         if args.chapter:
             # then we check if there's a dash (if we should dowpnload multiple chapters, but not the whole series
             if args.chapter.__contains__('-'):
-                download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1, output_path)
+                download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path)
             # just downloading one chapter
             else:
                 download_chapter(args.text, int(args.chapter), output_path)
 
         # otherwise we just download as usual
         else:
-            download(args.text, output_path)
-
-    # formatting
-    if args.format:
-        # if there is no output path specified, it's the working directory, otherwise, it's whatever was specified
-        if args.output:
-            output_path = args.output
-        else:
-            output_path = os.getcwd()
-
-        # getting if the content is a chapter/episode or series
-        # if something was downloaded with this command, we can just chech if text or --search is a non-empty arg, but if this command hasn't downloaded anything, we use --is-series
-        if args.is_series:
-            pass
-        elif args.search:
-            if args.chapter:
-                args.is_series = False
-            else:
-                args.is_series = True
-        elif args.text:
-            # identifying if args.text is a chapter or series
-            if identify_url_type(args.text) == 'series':
-                args.is_series = True
-            else:
-                args.is_series = False
-
-        # getting the path to the content to be formatted
-        # checking if this command downloaded stuff (then it's just output_path)
-        if args.input:
-            content_path = args.input
-        elif args.text or args.search:
-            content_path = output_path
-
-        # calling format()
-        format(args.format, content_path, args.content_format, output_path, args.is_series, args.chapters_per_file, chapter_naming_scheme=args.chapter_naming_scheme)
-        
+            download_series(args.text, output_path)
 
 
 if __name__ == '__main__':
@@ -449,37 +424,54 @@ if __name__ == '__main__':
     # the description is the description that will appear near the top when -h or --help is called
     parser = argparse.ArgumentParser(description='Scraping Tool is a scraper with a cli coded in python3. It\'s main use is scraping manga, and manga related items.')
 
-    # create a mutually exclusive group
-    group = parser.add_mutually_exclusive_group(required=True)
+    # creating the subparser so we can have multiple sub commands like main.py download and main.py format
+    subparsers = parser.add_subparsers(dest='command', required=True)
+
+    # creating the subcommands
+    download_parser = subparsers.add_parser('download', help='Downloads a url from a supported website, or searches then downloads the chosen search result with -s')
+    format_parser = subparsers.add_parser('format', help='Formats downloaded manga into different file formats')
+
+    # ------------------------------------------------------------------------- DOWNLOAD -------------------------------------------------------------------------
+    # create a mutually exclusive group 
+    download_group = download_parser.add_mutually_exclusive_group(required=True)
 
     # add the --list-ids argument to the group
-    group.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
+    download_group.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
 
     # add the text argument to the group
-    group.add_argument('text', type=str, nargs='?', help='The url to be scraped and downloaded')
+    download_group.add_argument('text', type=str, nargs='?', help='The url to be scraped and downloaded')
 
     # add the search argument to the group
-    group.add_argument('--search', '-s', type=str, help='If the text entered should be treated as a query or not')
+    download_group.add_argument('--search', '-s', type=str, help='If the text entered should be treated as a query or not')
 
     # add the formatting argument to the group
-    group.add_argument('--format', '-f', type=str, help='If the content should be formatted, and into what format')
+    download_group.add_argument('--format', '-f', type=str, help='If the content should be formatted, and into what format')
+
+    # all the normal download flags
+    download_parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
+    download_parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
+    download_parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4, or --chapter 0:4')
+    download_parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
+
+    # ------------------------------------------------------------------------- FORMAT -------------------------------------------------------------------------
 
 
-    # here we add all the optional arguments
-    # these will show up when -h or --help is called
-    parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
-    parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
-    parser.add_argument('--chapter', '-c', type=str,
-                        help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4, or --chapter 0:4')
-    parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
-    parser.add_argument('--content-format', type=str, help='The type of the content to be formatted (\'webtoon\'/\'manga\')')
-    parser.add_argument('--is-series', type=bool, help='If the content to be formatted is a series. Only neccessary if the content being formatted wasn\'t downloaded with this command')
-    parser.add_argument('--input', '-i', type=str, help='The path to the content to be formatted. Only neccessary if the content being formatted wasn\'t downloaded with this command')
-    parser.add_argument('--chapters-per-file', type=int, help='The amount of chapters/episodes to put per file. Requires -o to be a directory', default=None)
-    parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
+    format_parser.add_argument('--output', '-o', type=str, help='The path to where the formatted content will be outputed. Can be a directory (~/output/path), or a path to a file where it will infer the file type format the content as (~/output/file.pdf)')
+    format_parser.add_argument('--input', '-i', type=str, help='The path to the content to be formatted. Only neccessary if the content being formatted wasn\'t downloaded with this command', required=True)
+    format_parser.add_argument('--is-series', type=bool, help='If -i is a series, or only a single chapter/episode', required=True)
+    format_parser.add_argument('--content-format', type=str, help='The way to format the content (manga/webtoon). Manga is every image on it\'s own page, webtoon is images are stacked on top of eachother, chapters are one 1 page each.')
+    format_parser.add_argument('--chapters-per-file', type=int, help='The amount of chapters/episodes to put per file. Requires -o to be a directory', default=None)
+    format_parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
+    format_parser.add_argument('--file-type', type=str, help='The file format to formata the content into. Only required if -o isn\'t a path to a file (~/output/file.pdf)')
+    format_parser.add_argument('--series-name', type=str, help='The name of the series. Defaults to \'\', only used if using --chapters-per-file')
 
     # next we parse the arguments
     args = parser.parse_args()
 
-    # finally we call the main function with all the args we just got
-    main(args)
+    # finally we call the correct function for the subcommand
+    # format() for format, or download() for download
+    if args.command == 'download':
+        download(args)
+
+    elif args.command == 'format':
+        format(args)
