@@ -32,7 +32,7 @@ class Chapter(SharedChapterClass):
         img_array_text = response.text.split('const imgHttps = [')[1].split(']')[0]
 
         # then we turn it into an array
-        image_urls = [text.strip('"') for text in img_array_text.split(', ')]
+        image_urls = [text.strip('"') for text in img_array_text.split('","')]
 
         # finally we return the images as a list
         return image_urls
