@@ -253,7 +253,7 @@ def download_series(url: str, output_path: str, show_updates_in_terminal: bool =
         return True
 
 
-def search(query: str, adult: bool or None) -> list[SearchResult]:
+def search(query: str, adult: bool or None, results_per_website: int = 1) -> list[SearchResult]:
     '''Searches the given query on as many sites as possible'''
     # here we go through every scraper, and call its search function
     # but first before we do that, we declare a variable to store the search results
@@ -269,9 +269,12 @@ def search(query: str, adult: bool or None) -> list[SearchResult]:
             # now we call the search function, and append it's result to our list of search results
             # we only take the top result, so that the list of results doesn't become overwhelming
             search_result = search_function(query, adult)
-            # we check if there are any search results, otherwise we don't add it to search results
-            if search_result:
-                search_results.append(search_function(query, adult)[0])
+            
+            # adding however many results we're supposed to add per website
+            # the min is there so we don't try and add index 17 of a list with a length of 6
+            # that also means we don't have to check if something has a length of 0, since then the for loop will just go in range(0)
+            for i in range(min(results_per_website, len(search_result))):
+                search_results.append(search_function(query, adult)[i])
         except Exception as e:
             print(e)
             #print(f'Got error with text: \'{e}\' when searching on scraper with the url {scraper.get('url')}')
@@ -366,7 +369,7 @@ def download(args):
             # we try here in case we get an error
             search_results = get_scraper_mappings().get(args.website).get('search_function')(args.search, args.adult)
         else:
-            search_results = search(args.search, args.adult)
+            search_results = search(args.search, args.adult, args.count)
 
         # next, we construct the search results stuff we'll print
         search_results_user_prompt = 'Please enter the number of the manga you\'d like to download'
@@ -455,11 +458,9 @@ if __name__ == '__main__':
     # add the text argument to the group
     download_group.add_argument('text', type=str, nargs='?', help='The url to be scraped and downloaded')
 
-    # add the search argument to the group
+    # add the search arguments to the group
     download_group.add_argument('--search', '-s', type=str, help='If the text entered should be treated as a query or not')
-
-    # add the formatting argument to the group
-    download_group.add_argument('--format', '-f', type=str, help='If the content should be formatted, and into what format')
+    download_group.add_argument('--count', type=int, help='How many search results to take from each website when searching all websites. Default is 3', default=3)
 
     # all the normal download flags
     download_parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
