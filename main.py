@@ -287,9 +287,10 @@ def search(query: str, adult: bool or None, results_per_website: int = 1) -> lis
 
 def format(args):
     '''The function for handling the subcommand format'''
-    # giving a warning that the format type defaulted to manga if none was given
+    # giving a warning that the format type defaulted to manga if none was given (if giving warnings is enabled)
     if args.content_format == None:
-        print('No content type was given for formatting, meaning it will default to formatting the content as manga. To format a webtoon pass \'--content-format webtoon\'')
+        if not args.disable_warnings:
+            print('No content type was given for formatting, meaning it will default to formatting the content as manga. To format a webtoon pass \'--content-format webtoon\'')
         args.content_type = 'manga'
 
     # a dict for the different imports for formatting, to avoid a ton of if statements
@@ -317,6 +318,19 @@ def format(args):
         else:
             raise Exception(f'No file format for the output file(s) was passed, and none was able to be inferred from -i (\'{args.output}\'). To specify the file format, pass the file format as --file-type (ex \'--file-type pdf\'), or specify it in -o with something like \'~/output/file.pdf\'')
 
+    # attempting to figure out if the data to be formatted is a serie or not if --is-series was not passed
+    if not args.is_series:
+        # what we basically check is if the directory has images in it
+        if len([file for file in os.listdir(args.input) if file.lower().endswith(('.png', '.jpeg', '.jpg', '.gif'))]) > 0:
+            args.is_series = False
+        else:
+            args.is_series = True
+
+        # warning the user we inferred it, and telling them how to disable the warning & how to set --is-series
+        if not args.disable_warnings:
+            print(f'--is-series was not passed, so we inferred the content {({True: 'was a series', False: 'was a chapter/episode'}.get(args.is_series))}. To manually set this, pass --is-series (true/false), or to disable this and other warnings pass --disable-warnings')
+        
+
     # now we use that dict to get the class we're using for formatting
     formatting_class = format_imports.get(args.file_type.lower().lstrip('.')).get(args.content_type).get(args.is_series)
 
@@ -326,12 +340,8 @@ def format(args):
         args.input = os.getcwd
     formatting_object = formatting_class(args.input)
 
-    # attempting to infer the series name if --series-name is not passed, we're formatting a series, and --infer-series-name is True
-    if args.infer_series_name and args.series_name == None and args.is_series:
-        args.series_name = os.path.basename(os.path.abspath(args.input))
-
     # otherwise, we set series_name to '' if it wasn't passed
-    elif args.series_name == None:
+    if args.series_name == None:
         args.series_name = ''
 
     # now we format it
@@ -460,7 +470,7 @@ if __name__ == '__main__':
 
     # add the search arguments to the group
     download_group.add_argument('--search', '-s', type=str, help='If the text entered should be treated as a query or not')
-    download_group.add_argument('--count', type=int, help='How many search results to take from each website when searching all websites. Default is 3', default=3)
+    download_parser.add_argument('--count', type=int, help='How many search results to take from each website when searching all websites. Default is 3', default=3)
 
     # all the normal download flags
     download_parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
@@ -473,13 +483,14 @@ if __name__ == '__main__':
 
     format_parser.add_argument('--output', '-o', type=str, help='The path to where the formatted content will be outputed. Can be a directory (~/output/path), or a path to a file where it will infer the file type format the content as (~/output/file.pdf)')
     format_parser.add_argument('--input', '-i', type=str, help='The path to the content to be formatted. Only neccessary if the content being formatted wasn\'t downloaded with this command', required=True)
-    format_parser.add_argument('--is-series', type=bool, help='If -i is a series, or only a single chapter/episode', required=True)
+    format_parser.add_argument('--is-series', type=bool, help='If -i is a series, or only a single chapter/episode')
     format_parser.add_argument('--content-format', type=str, help='The way to format the content (manga/webtoon). Manga is every image on it\'s own page, webtoon is images are stacked on top of eachother, chapters are one 1 page each.')
     format_parser.add_argument('--chapters-per-file', type=int, help='The amount of chapters/episodes to put per file. Requires -o to be a directory', default=None)
     format_parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
     format_parser.add_argument('--file-type', type=str, help='The file format to formata the content into. Only required if -o isn\'t a path to a file (~/output/file.pdf)')
     format_parser.add_argument('--series-name', type=str, help='The name of the series. Defaults to \'\', only used if using --chapters-per-file')
     format_parser.add_argument('--infer-series-name', type=bool, help='If --series-name should try to be inferred if not passed', default=True)
+    format_parser.add_argument('--disable-warnings', help='If warnings such as defaulting to manga for formatting should be disabled', action='store_true')
 
     # next we parse the arguments
     args = parser.parse_args()
