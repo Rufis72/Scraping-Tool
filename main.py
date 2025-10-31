@@ -316,7 +316,7 @@ def format(args):
 
         # if it wasn't able to be inferred, then we raise an error
         else:
-            raise Exception(f'No file format for the output file(s) was passed, and none was able to be inferred from -i (\'{args.output}\'). To specify the file format, pass the file format as --file-type (ex \'--file-type pdf\'), or specify it in -o with something like \'~/output/file.pdf\'')
+            raise Exception(f'No file format for the output file(s) was passed, and none was able to be inferred from -i (\'{args.output}\'). To specify the file format, pass the file format as --file-format (ex \'--file-format pdf\'), or specify it in -o with something like \'~/output/file.pdf\'')
 
     # attempting to figure out if the data to be formatted is a serie or not if --is-series was not passed
     if not args.is_series:
@@ -487,7 +487,7 @@ if __name__ == '__main__':
     format_parser.add_argument('--content-format', type=str, help='The way to format the content (manga/webtoon). Manga is every image on it\'s own page, webtoon is images are stacked on top of eachother, chapters are one 1 page each.')
     format_parser.add_argument('--chapters-per-file', type=int, help='The amount of chapters/episodes to put per file. Requires -o to be a directory', default=None)
     format_parser.add_argument('--chapter-naming-scheme', type=str, help='How to name files when formatting into multiple files using --chapters-per-file', default='[series_name] chapter [chapter_start]-[chapter_end]')
-    format_parser.add_argument('--file-type', type=str, help='The file format to formata the content into. Only required if -o isn\'t a path to a file (~/output/file.pdf)')
+    format_parser.add_argument('--file-format', type=str, help='The file format to formata the content into. Only required if -o isn\'t a path to a file (~/output/file.pdf)')
     format_parser.add_argument('--series-name', type=str, help='The name of the series. Defaults to \'\', only used if using --chapters-per-file')
     format_parser.add_argument('--infer-series-name', type=bool, help='If --series-name should try to be inferred if not passed', default=True)
     format_parser.add_argument('--disable-warnings', help='If warnings such as defaulting to manga for formatting should be disabled', action='store_true')
