@@ -96,7 +96,7 @@ class SharedSeriesClass:
 
             # then we download it and add it to downloaded_chapters
             # we also pass the output path
-            chapter_object.download(os.path.join(output_path, chapter_object.get_name()), show_updates_in_terminal=show_updates_in_terminal)
+            chapter_object.download(os.path.join(output_path, chapter_object.get_name()), show_updates_in_terminal=show_updates_in_terminal, chapter_number = i + 1, chapter_count = len(chapter_urls))
 
     def get_chapter_urls(self, *args):
         '''Fetches a series' url and extracts the urls to that series' chapters
@@ -163,26 +163,31 @@ class SharedChapterClass:
         :returns: A list of the urls to the images as strings'''
         raise Exception(f'You need to make your own get_img_urls method!')
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False, add_host_but_call_it_something_else: str = None):
-        '''The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False, add_host_but_call_it_something_else: str = None, chapter_number = 1, chapter_count = 1):
+        '''# The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
         If the output paths's directory is the name of the chapter, it will save all it's images there, otherwise it will make a directory with the name of the chapter and save the images there
 
-        Example Code:
+        chapter_number and chapter_count are for when a series class downloads, so it can say (chapter 1/4), (chapter 2/4), (chapter 3/4), etc 
+
+        # Example Code:
         from common import SharedChapterClass
 
         path_to_save_images_to = '/put/your/path/here'
 
-        # making the chapter object
-        # make sure to include the scheme for the url
+        \# making the chapter object
+        \# make sure to include the scheme for the url
         chapter = Chapter('https://put.your/url/to/your/chapter/here')
 
-        # downloading the images
+        \# downloading the images
         chapter.download(path_to_save_images_to)
+        # params
         :param output_path: The path the images will be saved to
         :param show_updates_in_terminal: If updates should be shown in terminal when downloading
         :param image_headers: The headers used to request images
         :param add_host_to_image_headers: If the hostname should be added to headers under the header 'Host'
         :param add_host_but_call_it_something_else: The header name to use instead of 'Host'
+        :param chapter_number: The chapter number for giving updates when downloading as a series. the [chapter_num] part of (chapter [chapter_num]/[chapter_count])
+        :param chapter_count: The chapter count for giving updates when downloading as a series. the [chapter_count] part of (chapter [chapter_num]/[chapter_count])
         '''
         # first we get all the img urls
         img_urls = self.get_img_urls()
@@ -190,9 +195,12 @@ class SharedChapterClass:
         # next we make a directory for the chapter (if we're not in it already, or it already exists)
         output_path = get_correct_output_path(output_path, self.get_name())
 
+        # next we make a directory for the chapter (if we're not in it already, or it already exists)
+        output_path = get_correct_output_path(output_path, self.get_name())
+
         # if enabled we print an update in terminal showing we've started the download
         if show_updates_in_terminal:
-            print_image_download_start(self.url, len(img_urls))
+            print_image_download_start(self.url, len(img_urls), chapter_number, chapter_count)
 
         for i, img_url in enumerate(img_urls):
             # first we add the hostname to headers under 'Host' if enabled
@@ -227,12 +235,12 @@ class SharedChapterClass:
 
             # we also give an update that we finished an image (if enabled)
             if show_updates_in_terminal:
-                print_image_download_update(self.url, i, len(img_urls))
+                print_image_download_update(self.url, i, len(img_urls), chapter_number, chapter_count)
 
         # here we print the same text we already printed to show that the chapter's downloaded, but with \n at the end to stop the output becoming all wonky after downloading a chapter
         # if enabled of course
         if show_updates_in_terminal:
-            print_image_download_end(self.url, len(img_urls))
+            print_image_download_end(self.url, len(img_urls), chapter_number, chapter_count)
 
 
     def get_name(self) -> str:
@@ -341,47 +349,47 @@ def sort_search_results(search_results: list[SearchResult], query: str) -> list[
     return sorted_results
 
 
-def print_image_download_end(url: str, total_images: int) -> None:
+def print_image_download_end(url: str, total_images: int, chapter_number: int, chapter_count: int) -> None:
     '''Clears the current line and print an image downloading update with a new line at the end
 
     Example Code:
     from common import print_image_download_end
 
-    print_image_download_end('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/', 43)
+    print_image_download_end('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/', 43, 3, 4)
 
-    # that code would output this: '\rhttps://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 43/43\n'
+    # that code would output this: '\rhttps://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 43/43 (chapter 3/4)\n'
     :param url: The url to print an update for with the given data
     :param total_images: The first and second number in the progress indicator (total_images/total_images)'''
-    print(f'\r{url}: {total_images}/{total_images}', end='\n')
+    print(f'\r{url}: {total_images}/{total_images} (chapter {chapter_number}/{chapter_count})', end='\n')
 
 
-def print_image_download_update(url: str, current_progress: int, total_images: int) -> None:
+def print_image_download_update(url: str, current_progress: int, total_images: int, chapter_number: int, chapter_count: int) -> None:
     '''Clears the current line and print an image downloading update with no new line at the end
 
     Example Code:
     from common import print_image_download_update
 
-    print_image_download_update('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/', 3, 43)
+    print_image_download_update('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/', 3, 43, 3, 4)
 
-    # that code would output this '\nhttps://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 4/43'
+    # that code would output this '\nhttps://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 4/43 (chapter 3/4)'
     :param url: The url to print an update for with the given data
     :param total_images: The second number in the progress indicator (current_progress/total_images)
     :param current_progress The first number in the progress indicator (current_progress/total_images) One is added to this to make it say 0/n when one image has been downloaded'''
-    print(f'\r{url}: {current_progress + 1}/{total_images}', end='')
+    print(f'\r{url}: {current_progress + 1}/{total_images} (chapter {chapter_number}/{chapter_count})', end='')
 
 
-def print_image_download_start(url: str, total_images: int) -> None:
+def print_image_download_start(url: str, total_images: int, chapter_number: int, chapter_count: int) -> None:
     '''Prints an image downloading update
 
     Example Code:
     from common import print_image_download_start
 
-    print_image_download_start('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/', 43)
-    # this would output 'https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 0/43' (no \n at the end)
+    print_image_download_start('https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/', 43, 3, 4)
+    # this would output 'https://www.mangaread.org/manga/the-beginning-after-the-end/chapter-1-the-end-of-the-tunnel/: 0/43 (chapter 3/4)' (no \n at the end)
 
     :param url: The url to print an update for with the given data
     :param total_images: The second number in the progress indicator (0/total_images)'''
-    print(f'\r{url}: 0/{total_images}', end='')
+    print(f'\r{url}: 0/{total_images} (chapter {chapter_number}/{chapter_count})', end='')
 
 def construct_chapter_not_found_image(chapter_urls: list[str], input_chapter: int):
     '''Returns a string like this:
