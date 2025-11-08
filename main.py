@@ -309,10 +309,10 @@ def format(args):
 
     # attempting to infer the file format from -o if none was given (so if -o is ~/output/file.pdf for example)
     # if -o was a directory, then we raise an error
-    if args.file_type == None:
+    if args.file_format == None:
         # trying to get the filetype
         if not os.path.isdir(args.output):
-            args.file_type = os.path.splitext(args.output)[1]
+            args.file_format = os.path.splitext(args.output)[1]
 
         # if it wasn't able to be inferred, then we raise an error
         else:
@@ -332,7 +332,7 @@ def format(args):
         
 
     # now we use that dict to get the class we're using for formatting
-    formatting_class = format_imports.get(args.file_type.lower().lstrip('.')).get(args.content_type).get(args.is_series)
+    formatting_class = format_imports.get(args.file_format.lower().lstrip('.')).get(args.content_type).get(args.is_series)
 
     # now we initialize the object
     # if -i wasn't passed, we default to the current directory

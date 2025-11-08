@@ -116,6 +116,8 @@ class PDFMangaSeries:
                     output_path, 
                     pdf_chapter_naming_scheme.replace('[series_name]', series_name).replace('[chapter_start]', str(i * chapters_per_pdf)).replace('[chapter_end]', str(min(len(chapter_directory_names) - 1, (i + 1) * chapters_per_pdf))) + '.pdf'
                 )
+            else:
+                new_output_path = output_path
 
             merger.write(new_output_path)
             merger.close()
