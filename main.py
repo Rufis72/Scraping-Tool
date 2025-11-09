@@ -330,6 +330,9 @@ def format(args):
         if not args.disable_warnings:
             print(f'--is-series was not passed, so we inferred the content {({True: 'was a series', False: 'was a chapter/episode'}.get(args.is_series))}. To manually set this, pass --is-series (true/false), or to disable this and other warnings pass --disable-warnings')
         
+    # raising an error if the file format we ended up with is unrecognized
+    if format_imports.get(args.file_format.lower().lstrip('.')) == None:
+        raise Exception(f'Formatting \'{args.file_format}\' files is unsupported. The supported file types are: \n{', '.join(format_imports.keys())}')
 
     # now we use that dict to get the class we're using for formatting
     formatting_class = format_imports.get(args.file_format.lower().lstrip('.')).get(args.content_type).get(args.is_series)
