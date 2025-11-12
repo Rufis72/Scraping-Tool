@@ -16,7 +16,8 @@
 Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
 ### Installation
 ```shell
-git clone https://github.com/Rufis72/Scraping-Tool  
+git clone https://github.com/Rufis72/Scraping-Tool
+cd Scraping-Tool
 pip3 install -r requirements.txt
 ```
 ### Setup
