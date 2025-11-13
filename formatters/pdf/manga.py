@@ -20,7 +20,7 @@ class PDFMangaChapter:
         # if it is, we add it to the list of filenames
         images = []
         for filename in sorted(os.listdir(self.content_path)):
-            if ['.png', '.jpeg', '.jpg', '.gif'].__contains__(os.path.splitext(filename)[-1].lower()):
+            if common.is_image_filename(filename):
                 images.append(Image.open(os.path.join(self.content_path, filename)))
 
         # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty

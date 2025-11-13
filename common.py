@@ -430,3 +430,27 @@ def sort_strings_naturally(strings):
 
     # sort the list in place using the natural sort key
     return sorted(strings, key=natural_sort_key)
+
+
+def is_image_path(path: str):
+    '''Evaluates if a path leads to an image file
+    This function's list of image filetypes are png, jpg, jpeg, and gif.
+    It also checks if the path leads to a file (so no directorys named img.png)'''
+    return [
+        '.png', 
+        '.jpeg', 
+        '.jpg', 
+        '.gif'
+    ].__contains__(os.path.splitext(path)[-1].split('.')[-1].lower()) and os.path.isfile(path)
+
+
+def is_image_filename(filename: str):
+    '''Evaluates if a path leads to an image file
+    This function's list of image filetypes are png, jpg, jpeg, and gif.
+    This just checks if the text after the last '.' (lowered) is in the list of image filetypes, so it cannot tell the difference between a directory's name, and a file's name. To do that, use common.is_image_path'''
+    return [
+        '.png', 
+        '.jpeg', 
+        '.jpg', 
+        '.gif'
+    ].__contains__(filename.split['.'][-1].lower())
