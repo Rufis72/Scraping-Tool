@@ -191,6 +191,7 @@ class SharedChapterClass:
         :param chapter_count: The chapter count for giving updates when downloading as a series. the [chapter_count] part of (chapter [chapter_num]/[chapter_count])
         :param redownload: If this chapter should be downloaded again, even if already downloaded       ``
         '''
+        
         # first we get all the img urls
         img_urls = self.get_img_urls()
 
@@ -280,6 +281,10 @@ class SharedChapterClass:
                 image_filenames.append(filename)
             else:
                 print('anana')
+
+        print(image_filenames)
+        print(image_count)
+        print(len(image_filenames))
 
         # returning True if the counts match, otherwise return false
         return len(image_filenames) == image_count
