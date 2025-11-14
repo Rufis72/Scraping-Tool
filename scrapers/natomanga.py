@@ -43,8 +43,8 @@ class Chapter(SharedChapterClass):
         return image_srcs
 
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True, replace_image_failed_error_with_warning=True)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True, replace_image_failed_error_with_warning=True, redownload=redownload)
 
 
 
@@ -91,8 +91,8 @@ class Series(SharedSeriesClass):
         # the final step is just returning the urls
         return chapter_urls
     
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
 
 # all the functions here are for main.py

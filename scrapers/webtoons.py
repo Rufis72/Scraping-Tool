@@ -45,8 +45,8 @@ class Chapter(SharedChapterClass):
         # finally we return the image sources
         return image_srcs
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.webtoons.com/'}, add_host_to_image_headers=True)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.webtoons.com/'}, add_host_to_image_headers=True, redownload=redownload)
 
     def get_name(self) -> str:
         # first we parse the url
@@ -117,8 +117,8 @@ class Series(SharedSeriesClass):
         return chapter_urls
 
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
     def get_name(self) -> str:
         # first we get the url's path

@@ -108,7 +108,7 @@ def identify_url_type(scraper_name: str, url: str) -> str or None:
         return None
 
 
-def download_chapter(series_url: str, chapter_num: int, output_path: str, show_updates_in_terminal: bool = True):
+def download_chapter(series_url: str, chapter_num: int, output_path: str, redownload: bool, show_updates_in_terminal: bool = True):
     '''Donwloads the chapter_numth chapter of a series. If the chapter number does not exist, or is invalid, it will give the user dialog to pick another option
 
     Example Code:
@@ -118,7 +118,8 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str, show_u
     download_chapter('https://mangabuddy.com/the-beginning-after-the-end', 224)
     :param series_url: The url of the series
     :param chapter_num: The index of the chapter to be downloaded
-    :param output_path: Where the chapter's images will be saved'''
+    :param output_path: Where the chapter's images will be saved
+    :param redownload: If the chapter should be redownloaded, even if already downloaded'''
     # first we get the scraper for the url's functions
     scraper_functions = get_scraper_function_mappings_by_url(series_url)
 
@@ -151,15 +152,16 @@ def download_chapter(series_url: str, chapter_num: int, output_path: str, show_u
 
     # now we download the chapter
     # even if the chapter_num wasn't valid, it'll still save the new chapter_url to chapter_to_download_url
-    scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path, show_updates_in_terminal)
+    scraper_functions.get('chapter_class_reference')(chapter_to_download_url).download(output_path, show_updates_in_terminal, redownload=redownload)
 
 
-def download_chapters(series_url : str, starting_chapter_num: int, ending_chapter_num: int or None, output_path: str, show_updates_in_terminal: bool = True):
+def download_chapters(series_url : str, starting_chapter_num: int, redownload: bool, ending_chapter_num: int or None, output_path: str, show_updates_in_terminal: bool = True):
     '''Downloads multiple chapters from a series via it's series_url
     :param series_url: The url to the series
     :param starting_chapter_num: The starting chapter to be downloaded from
     :param ending_chapter_num: The ending chapter to be downloaded from
-    :param output_path: The path where the chapters and the images will be saved'''
+    :param output_path: The path where the chapters and the images will be saved
+    :param redownload: If a chapter should be redownloaded, even if already downloaded'''
     # first we get the scraper were gonna use for the url's functions
     scraper_functions = get_scraper_function_mappings_by_url(series_url)
 
@@ -186,10 +188,10 @@ def download_chapters(series_url : str, starting_chapter_num: int, ending_chapte
 
     # finally we just use main.py's download function to download all the chapters
     for chapter_url_to_download in chapter_urls_to_download:
-        download_series(chapter_url_to_download, output_path, show_updates_in_terminal)
+        download_series(chapter_url_to_download, output_path, redownload, show_updates_in_terminal, redownload=redownload)
 
 
-def download_series(url: str, output_path: str, show_updates_in_terminal: bool = True) -> bool:
+def download_series(url: str, output_path: str, redownload: bool, show_updates_in_terminal: bool = True) -> bool:
     '''Checks if the url works for this scraper, and if so downloads and saves the contents from the url, then returns True. Otherwise, it does nothing and returns False
 
     Example Code:
@@ -197,7 +199,8 @@ def download_series(url: str, output_path: str, show_updates_in_terminal: bool =
 
     download_series('https://mangabuddy.com/the-beginning-after-the-end') # this will return True and download it
     :param url: The url we are checking if matches, and if so downloading
-    :param output_path: The output path to save the downloaded images to'''
+    :param output_path: The output path to save the downloaded images to
+    :param redownload: If a chapter should be redownloaded, even if already downloaded'''
     # first we go through all the scrapers, and get the scraper the url works for (if any)
     scraper_name = get_scraper_name_by_url(url)
     # then we get that scraper's functions via it's name
@@ -233,12 +236,15 @@ def download_series(url: str, output_path: str, show_updates_in_terminal: bool =
 
         # next we download the images
         # the download function also saves them, so we don't have to worry about that
-        series_object.download(output_path, show_updates_in_terminal=show_updates_in_terminal)
+        series_object.download(output_path, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
         # then we return True so whatever is calling this knows it matched
         return True
 
-    # this is for chapters
+    # not sure why the following code is here
+    # maybe from some refactoring at some point?
+    # leaving it just in case it's needed
+    '''# this is for chapters
     elif url_type == 'chapter':
         # since it matched, we give an indication it matched to the user
         print(f'Downloading {url}')
@@ -247,10 +253,10 @@ def download_series(url: str, output_path: str, show_updates_in_terminal: bool =
         chapter_object = scraper_functions.get('chapter_class_reference')(url)
 
         # next we download the images
-        chapter_object.download(output_path, show_updates_in_terminal=show_updates_in_terminal)
+        chapter_object.download(output_path, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
         # then we return True so whatever is calling this knows it matched
-        return True
+        return True'''
 
 
 def search(query: str, adult: bool or None, results_per_website: int = 1) -> list[SearchResult]:
@@ -416,13 +422,13 @@ def download(args):
         if args.chapter:
             # then we check if there's a dash (if we should download multiple chapters, but not the whole series
             if args.chapter.__contains__('-'):
-                download_chapters(search_results[int(one_to_download)].url, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path)
+                download_chapters(search_results[int(one_to_download)].url, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path, args.redownload)
             # just downloading one chapter
             else:
-                download_chapter(search_results[int(one_to_download)].url, int(args.chapter), output_path)
+                download_chapter(search_results[int(one_to_download)].url, int(args.chapter), output_path, args.redownload)
         else:
             # since we're not downloading a specific, chapter we download the entire series
-            download_series(search_results[int(one_to_download)].url, output_path)
+            download_series(search_results[int(one_to_download)].url, output_path, args.redownload)
 
     # this is for just downloading a url
     elif args.text:
@@ -438,14 +444,14 @@ def download(args):
         if args.chapter:
             # then we check if there's a dash (if we should dowpnload multiple chapters, but not the whole series
             if args.chapter.__contains__('-'):
-                download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path)
+                download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path, args.redownload)
             # just downloading one chapter
             else:
-                download_chapter(args.text, int(args.chapter), output_path)
+                download_chapter(args.text, int(args.chapter), output_path, args.redownload)
 
         # otherwise we just download as usual
         else:
-            download_series(args.text, output_path)
+            download_series(args.text, output_path, args.redownload)
 
 
 if __name__ == '__main__':
@@ -480,6 +486,7 @@ if __name__ == '__main__':
     download_parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
     download_parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4, or --chapter 0:4')
     download_parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
+    download_parser.add_argument('--redownload', action='store_true', help='If chapters should be redownloaded, even if already downloaded. Defaults to false.')
 
     # ------------------------------------------------------------------------- FORMAT -------------------------------------------------------------------------
 

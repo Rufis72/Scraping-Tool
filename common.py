@@ -58,7 +58,7 @@ class SharedSeriesClass:
     def __init__(self, url: str):
         self.url = url
 
-    def download(self, output_path: str, chapter_object_reference: type, show_updates_in_terminal: bool = True):
+    def download(self, output_path: str, chapter_object_reference: type, show_updates_in_terminal: bool = True, redownload: bool = False):
         '''This is the generic shared series class download function. It will call self.get_chapter_urls, then download them. If headers are passed in, it will use those when requesting the chapters
         This function is mainly for organizing where chapters should go, so it doesn't do any requests on it's own. It just gets the paths to where the chapters should saves them
 
@@ -85,7 +85,8 @@ class SharedSeriesClass:
         series.download(output_path)
         :param output_path: The path where the images will be saved to
         :param chapter_object_reference: The reference to the Chapter object for this scraper
-        :param headers: The headers used when requesting chapters'''
+        :param headers: The headers used when requesting chapters
+        :param redownload: If a chapter should be redownloaded, even if already downloaded'''
         # first we get all the urls for the chapters in the series
         chapter_urls = self.get_chapter_urls()
 
@@ -96,7 +97,7 @@ class SharedSeriesClass:
 
             # then we download it and add it to downloaded_chapters
             # we also pass the output path
-            chapter_object.download(os.path.join(output_path, chapter_object.get_name()), show_updates_in_terminal=show_updates_in_terminal, chapter_number = i + 1, chapter_count = len(chapter_urls))
+            chapter_object.download(os.path.join(output_path, chapter_object.get_name()), show_updates_in_terminal=show_updates_in_terminal, chapter_number = i + 1, chapter_count = len(chapter_urls), redownload=redownload)
 
     def get_chapter_urls(self, *args):
         '''Fetches a series' url and extracts the urls to that series' chapters
@@ -163,7 +164,7 @@ class SharedChapterClass:
         :returns: A list of the urls to the images as strings'''
         raise Exception(f'You need to make your own get_img_urls method!')
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False, add_host_but_call_it_something_else: str = None, chapter_number = 1, chapter_count = 1):
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False, add_host_but_call_it_something_else: str = None, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
         '''# The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
         If the output paths's directory is the name of the chapter, it will save all it's images there, otherwise it will make a directory with the name of the chapter and save the images there
 
@@ -174,13 +175,13 @@ class SharedChapterClass:
 
         path_to_save_images_to = '/put/your/path/here'
 
-        \# making the chapter object
-        \# make sure to include the scheme for the url
+        \# making the chapter object\n
+        \# make sure to include the scheme for the url\n
         chapter = Chapter('https://put.your/url/to/your/chapter/here')
 
-        \# downloading the images
+        \# downloading the images\n
         chapter.download(path_to_save_images_to)
-        # params
+        
         :param output_path: The path the images will be saved to
         :param show_updates_in_terminal: If updates should be shown in terminal when downloading
         :param image_headers: The headers used to request images
@@ -188,6 +189,7 @@ class SharedChapterClass:
         :param add_host_but_call_it_something_else: The header name to use instead of 'Host'
         :param chapter_number: The chapter number for giving updates when downloading as a series. the [chapter_num] part of (chapter [chapter_num]/[chapter_count])
         :param chapter_count: The chapter count for giving updates when downloading as a series. the [chapter_count] part of (chapter [chapter_num]/[chapter_count])
+        :param redownload: If this chapter should be downloaded again, even if already downloaded       ``
         '''
         # first we get all the img urls
         img_urls = self.get_img_urls()
@@ -195,8 +197,14 @@ class SharedChapterClass:
         # next we make a directory for the chapter (if we're not in it already, or it already exists)
         output_path = get_correct_output_path(output_path, self.get_name())
 
-        # next we make a directory for the chapter (if we're not in it already, or it already exists)
-        output_path = get_correct_output_path(output_path, self.get_name())
+        # then (if enabled) we check if the chapter's already been downloaded to see if we should skip it
+        if not redownload and self.get_if_chapter_already_downloaded(output_path, len(img_urls)):
+            # giving an update to the user we skipped the chapter (if enabled)
+            if show_updates_in_terminal:
+                print_chapter_already_downloaded_message(chapter_number)
+
+            # ending the function
+            return
 
         # if enabled we print an update in terminal showing we've started the download
         if show_updates_in_terminal:
@@ -242,6 +250,39 @@ class SharedChapterClass:
         if show_updates_in_terminal:
             print_image_download_end(self.url, len(img_urls), chapter_number, chapter_count)
 
+    def get_if_chapter_already_downloaded(self, output_path: str, image_count: int) -> bool:
+        '''Returns a boolean based off if this function believes the images have already been downloaded
+        The way it detects this is by getting all the images in the output path, and if their count is equal to the amount of images we're gonna download, we count this chapter as downloaded
+        
+        Example Code:
+        from common import SharedChapterClass
+        
+        # making a chapter class using the SharedChapterClass as it's super class
+        class Chapter(SharedChapterClass):
+            def __init__(url):
+                super().__init__(url)
+
+            def get_img_urls():
+                # put your code to extract image urls here
+
+        # making the chapter object
+        chapter_object = Chapter('https://put.your/url/here)
+
+        # checking if the chapter's have already been downloaded
+        print(chapter_object.get_if_chapter_already_downloaded(43, '/put/the/output/path/here'))
+        :param image_count: The count of images that would be downloaded for a chapter
+        :param output_path: The path where the images would be downloaded
+        '''
+        # getting all the images in the output path
+        image_filenames = []
+        for filename in os.listdir(output_path):
+            if is_image_filename(filename):
+                image_filenames.append(filename)
+            else:
+                print('anana')
+
+        # returning True if the counts match, otherwise return false
+        return len(image_filenames) == image_count
 
     def get_name(self) -> str:
         '''Attempts to extract the name of a chapter, if it fails it just returns the entire url, otherwise it returns the extracted name
@@ -416,12 +457,17 @@ def construct_chapter_not_found_image(chapter_urls: list[str], input_chapter: in
     # now we return the dialog
     return full_dialog
 
+
+def print_chapter_already_downloaded_message(chapter_num: int):
+    print(f'Chapter {chapter_num} already downloaded, skipping... (pass --redownload to force redownloading)')
+
+
 def generate_random_string(length: int) -> str:
     '''Returns a string of length length with randomly chosen ascii characters'''
     return ''.join([random.choice(string.ascii_letters) for i in range(length)])
 
 
-def sort_strings_naturally(strings):
+def sort_strings_naturally(strings) -> list[str]:
     '''Sorts text so that ['chapter-1', 'chapter-10', 'chapter-3'] would be sorted as ['chapter-1', 'chapter-3', 'chapter-10']'''
     # this code is taken from the internet, so sorry if the comments aren't great
     def natural_sort_key(s):
@@ -432,25 +478,25 @@ def sort_strings_naturally(strings):
     return sorted(strings, key=natural_sort_key)
 
 
-def is_image_path(path: str):
+def is_image_path(path: str) -> bool:
     '''Evaluates if a path leads to an image file
     This function's list of image filetypes are png, jpg, jpeg, and gif.
     It also checks if the path leads to a file (so no directorys named img.png)'''
     return [
-        '.png', 
-        '.jpeg', 
-        '.jpg', 
-        '.gif'
+        'png', 
+        'jpeg', 
+        'jpg', 
+        'gif'
     ].__contains__(os.path.splitext(path)[-1].split('.')[-1].lower()) and os.path.isfile(path)
 
 
-def is_image_filename(filename: str):
+def is_image_filename(filename: str) -> bool:
     '''Evaluates if a path leads to an image file
     This function's list of image filetypes are png, jpg, jpeg, and gif.
     This just checks if the text after the last '.' (lowered) is in the list of image filetypes, so it cannot tell the difference between a directory's name, and a file's name. To do that, use common.is_image_path'''
     return [
-        '.png', 
-        '.jpeg', 
-        '.jpg', 
-        '.gif'
-    ].__contains__(filename.split['.'][-1].lower())
+        'png', 
+        'jpeg', 
+        'jpg', 
+        'gif'
+    ].__contains__(filename.split('.')[-1].lower())

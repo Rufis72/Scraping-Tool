@@ -83,8 +83,8 @@ class Series(SharedSeriesClass):
         return chapter_urls
 
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
 # all the functions here are for main.py
 def search(query: str, adult:  bool or None = None) -> list[SearchResult]:
