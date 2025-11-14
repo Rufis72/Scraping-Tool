@@ -74,8 +74,8 @@ class Chapter(SharedChapterClass):
         # finally we return the imgs we got
         return img_urls
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, replace_image_failed_error_with_warning: bool = False, redownload: bool = False):
-        super().download(output_path, show_updates_in_terminal, {'Referer': 'https://www.mangatown.com/'}, True, replace_image_failed_error_with_warning, add_host_but_call_it_something_else='Alt-Used', redownload=redownload)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, replace_image_failed_error_with_warning: bool = False, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
+        super().download(output_path, show_updates_in_terminal, {'Referer': 'https://www.mangatown.com/'}, True, replace_image_failed_error_with_warning, 'Alt-Used', chapter_number, chapter_count, redownload)
 
     def get_name(self) -> str:
         return self.url.strip('/').split('/')[-1]
@@ -119,8 +119,8 @@ class Series(SharedSeriesClass):
         # finally we just return all the urls
         return chapter_urls
     
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, Chapter, show_updates_in_terminal)
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+        super().download(output_path, Chapter, show_updates_in_terminal, redownload=redownload)
 
 
 def search(query: str, adult: bool or None = None) -> list[SearchResult]:

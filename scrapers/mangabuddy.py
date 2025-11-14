@@ -42,8 +42,8 @@ class Chapter(SharedChapterClass):
         return stringified_url_list.split(',')
     
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True):
-        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://mangabuddy.com/'})
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
+        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://mangabuddy.com/'}, chapter_number=chapter_number, chapter_count=chapter_count, redownload=redownload)
 
 
 class Series(SharedSeriesClass):

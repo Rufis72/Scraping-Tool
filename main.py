@@ -486,7 +486,7 @@ if __name__ == '__main__':
     download_parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
     download_parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4, or --chapter 0:4')
     download_parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
-    download_parser.add_argument('--redownload', action='store_true', help='If chapters should be redownloaded, even if already downloaded. Defaults to false.')
+    download_parser.add_argument('--redownload', action='store_true', default=False, help='If chapters should be redownloaded, even if already downloaded. Defaults to false.')
 
     # ------------------------------------------------------------------------- FORMAT -------------------------------------------------------------------------
 

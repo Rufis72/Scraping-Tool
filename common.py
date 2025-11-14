@@ -279,12 +279,6 @@ class SharedChapterClass:
         for filename in os.listdir(output_path):
             if is_image_filename(filename):
                 image_filenames.append(filename)
-            else:
-                print('anana')
-
-        print(image_filenames)
-        print(image_count)
-        print(len(image_filenames))
 
         # returning True if the counts match, otherwise return false
         return len(image_filenames) == image_count
