@@ -11,6 +11,7 @@
 - mangaread.org
 - mangatown.com
 - 1manga.co
+- tapas.io
 ## Installation
 ### Prerequisites
 Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
