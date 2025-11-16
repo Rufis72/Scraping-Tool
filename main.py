@@ -56,6 +56,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
             'chapter_class_reference': bato.Chapter,
             'search_function': bato.search,
         },
+        'tapas': {
+            'url': 'tapas.io',
+            'series_class_reference': tapas.Series,
+            'chapter_class_reference': tapas.Chapter,
+            'search_function': tapas.search,
+        },
     }
 
 
