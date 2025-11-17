@@ -42,8 +42,7 @@ class Chapter(SharedChapterClass):
         # finally we return the image sources
         return image_srcs
 
-
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
+    def download(sself, output_path: str, show_updates_in_terminal: bool = True, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
         super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True, replace_image_failed_error_with_warning=True, redownload=redownload)
 
 
