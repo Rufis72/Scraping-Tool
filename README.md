@@ -4,7 +4,7 @@
 </p>
 
 ## Supported Sources
-- natomanga (currently broken due to Cloudflare)
+- natomanga (search currently broken due to Cloudflare)
 - webtoons.com
 - bato.to
 - mangabuddy.com
