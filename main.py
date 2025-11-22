@@ -226,16 +226,6 @@ def download_series(url: str, output_path: str, redownload: bool, show_updates_i
 
     # first we make an object for the series
     series_object = scraper_functions.get('series_class_reference')(url)
-# next we go through everything in that div and extract the name and url and save it as a SearchResult object to our list of search results
-    search_results = []
-    for search_result in chapter_div.find_all('div'):
-        url = search_result.find('a').get('href')
-        name = search_result.find('h3', {'class': 'story_name'}).text.strip()
-        # now we turn it into a search result object and save it
-        # because for whatever reason, there's always two of something in the search results, we check if we've already added that thing
-        # if it's already there, we just don't add it
-        if len(search_results) == 0 or search_results[-1].url != url:
-            search_results.append(SearchResult(name, url, 'manganato'))
     # after that we make the directory for the series. (if we're not already in it) Then we save that as our new output path
     # the first step to doing that is getting the name of our series
     series_name = series_object.get_name()
