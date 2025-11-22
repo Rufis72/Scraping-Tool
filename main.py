@@ -226,7 +226,16 @@ def download_series(url: str, output_path: str, redownload: bool, show_updates_i
 
     # first we make an object for the series
     series_object = scraper_functions.get('series_class_reference')(url)
-
+# next we go through everything in that div and extract the name and url and save it as a SearchResult object to our list of search results
+    search_results = []
+    for search_result in chapter_div.find_all('div'):
+        url = search_result.find('a').get('href')
+        name = search_result.find('h3', {'class': 'story_name'}).text.strip()
+        # now we turn it into a search result object and save it
+        # because for whatever reason, there's always two of something in the search results, we check if we've already added that thing
+        # if it's already there, we just don't add it
+        if len(search_results) == 0 or search_results[-1].url != url:
+            search_results.append(SearchResult(name, url, 'manganato'))
     # after that we make the directory for the series. (if we're not already in it) Then we save that as our new output path
     # the first step to doing that is getting the name of our series
     series_name = series_object.get_name()
@@ -368,7 +377,7 @@ def format(args):
             },
             'webtoon': {
                 True: pdf_webtoon.PDFWebtoonSeries,
-                False: pdf_webtoon.PDFWebtoonChapter,
+                False: pdf.webtoon.PDFWebtoonChapter,
             },
         },
     }
@@ -399,6 +408,11 @@ def format(args):
     # raising an error if the file format we ended up with is unrecognized
     if format_imports.get(args.file_format.lower().lstrip('.')) == None:
         raise Exception(f'Formatting \'{args.file_format}\' files is unsupported. The supported file types are: \n{', '.join(format_imports.keys())}')
+
+    # if it's a series, and we're formatting into multiple files, we check if the output path is to a directory
+    if not args.chapters_per_file is None and (not os.path.exists(args.output) or not os.path.isdir(args.output)):
+        raise Exception(f'The specificed output path \'({args.output})\' is not to a directory, which is required when formatting a set amount of chapters per file. (When --chapters-per-file is passed)')
+
 
     # now we use that dict to get the class we're using for formatting
     formatting_class = format_imports.get(args.file_format.lower().lstrip('.')).get(args.content_type).get(args.is_series)
