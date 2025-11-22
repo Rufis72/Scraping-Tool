@@ -377,7 +377,7 @@ def format(args):
             },
             'webtoon': {
                 True: pdf_webtoon.PDFWebtoonSeries,
-                False: pdf.webtoon.PDFWebtoonChapter,
+                False: pdf_webtoon.PDFWebtoonChapter,
             },
         },
     }
