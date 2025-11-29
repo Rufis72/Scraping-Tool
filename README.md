@@ -62,6 +62,6 @@ python3 main.py format -i ./Hero\ Killer -o ./output.pdf --content-format webtoo
 Format a series as a PDF, but split it up into multiple files by chapter count
 ```shell
 mkdir output
-python3 main.py format -i ./One\ Piece -o ./output --chapters-per-file 20
+python3 main.py format -i ./One\ Piece -o ./output --chapters-per-file 20 --file-format pdf
 ```
 
