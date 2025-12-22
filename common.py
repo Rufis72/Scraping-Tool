@@ -237,18 +237,14 @@ class SharedChapterClass:
                 self.image_headers[self.add_host_but_call_it_something_else] = parse.urlparse(img_url).hostname
 
             # secondly we request the img
-            img_response = requests.get(img_url)
+            img_response = requests.get(img_url, headers=self.image_headers)
 
             # next we make sure the request went through
             if img_response.status_code != 200:
-                print(self.image_headers)
-                print(img_response.status_code)
-                print(img_url)
-                continue
                 # we also store the status code in case we need to use it for an error message
                 status_code_one = img_response.status_code
                 # if it didn't, we request it one more time
-                img_response = requests.get(img_url, headers=image_headers)
+                img_response = requests.get(img_url, headers=self.image_headers)
 
                 # and if that still doesn't work, we raise an error unless replace_image_vailed_error_with_warning is toggled, then we print a warning instead
                 if self.replace_image_failed_error_with_warning and show_updates_in_terminal and img_response.status_code != 200:
@@ -256,8 +252,7 @@ class SharedChapterClass:
                 # the elif is here because the first condition needs show updates in terminal, and replace image failed error with warning to be true, but if show updates in terminal isn't, it'll still raise an error even though told not to
                 elif not self.replace_image_failed_error_with_warning and img_response.status_code != 200:
                     if img_response.status_code != 200:
-                        raise Exception(
-                            f'Got status codes {status_code_one} when requesting \'{img_url}\'. Then we retried getting the image, got status code {img_response.status_code}')
+                        raise Exception(f'Got status codes {status_code_one} when requesting \'{img_url}\'. Then we retried getting the image, got status code {img_response.status_code}')
 
             # if we did get the image, we save it
             with open(os.path.join(output_path, f'{i:03d}.png'), 'wb') as f:
