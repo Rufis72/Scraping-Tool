@@ -51,7 +51,7 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
             'search_function': onemanga.search,
         },
         'bato': {
-            'url': 'bato.to',
+            'url': 'xbato.com',
             'series_class_reference': bato.Series,
             'chapter_class_reference': bato.Chapter,
             'search_function': bato.search,
