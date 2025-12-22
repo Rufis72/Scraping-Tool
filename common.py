@@ -55,10 +55,15 @@ class SharedSeriesClass:
     # this is if you don't want to alwasy have to include your chapter_object_reference in the download method
     def download(self, output_path):
         super.download(output_path, chapter_object_reference=your_chapter_class)'''
+    # this is a class variable for the chapter object reference
+    # it's just here to make it so you don't have to pass a reference to the class object when testing, and writing the scraper functions and such
+    # also to prevent download being super().download() + a class object reference
+    chapter_object_reference = None
+
     def __init__(self, url: str):
         self.url = url
 
-    def download(self, output_path: str, chapter_object_reference: type, show_updates_in_terminal: bool = True, redownload: bool = False):
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
         '''This is the generic shared series class download function. It will call self.get_chapter_urls, then download them. If headers are passed in, it will use those when requesting the chapters
         This function is mainly for organizing where chapters should go, so it doesn't do any requests on it's own. It just gets the paths to where the chapters should saves them
 
@@ -87,13 +92,18 @@ class SharedSeriesClass:
         :param chapter_object_reference: The reference to the Chapter object for this scraper
         :param headers: The headers used when requesting chapters
         :param redownload: If a chapter should be redownloaded, even if already downloaded'''
-        # first we get all the urls for the chapters in the series
+        # first we make sure we have a chapter class reference
+        # since it's required for downloading
+        if self.chapter_object_reference == None:
+            raise Exception('A reference to the chapter object is required when downloading a series. If you are a developer, make sure to specify one by making a class variable named chapter_object_reference with a reference to the class. Otherwise, if you are a user, please open a bug report.')
+
+        # then we get all the urls for the chapters in the series
         chapter_urls = self.get_chapter_urls()
 
         # next we go through and download every chapter
         for i, chapter_url in enumerate(chapter_urls):
             # the first step is making a chapter object for the chapter
-            chapter_object = chapter_object_reference(chapter_url)
+            chapter_object = self.chapter_object_reference(chapter_url)
 
             # then we download it and add it to downloaded_chapters
             # we also pass the output path
@@ -146,6 +156,13 @@ class SharedChapterClass:
     '''This is a base class for all chapter classes for scrapers.
     SharedChapterClass already has a download method, so you just need to write a get_chapter_url method to get chapter urls.
     You do need to make your own get_img_urls method'''
+    # these are class variables for downloading
+    # we store them here to prevent unreadability in the scraper functions for specific websites
+    # specifically, to prevent situations where the download function is just super().download() + some parameters like headers for that scraper
+    image_headers = {}
+    add_host_to_image_headers = False
+    replace_image_failed_error_with_warning = False
+    add_host_but_call_it_something_else = None # this should be a string of what it should be if used
 
     def __init__(self, url: str):
         self.url = url
@@ -164,7 +181,7 @@ class SharedChapterClass:
         :returns: A list of the urls to the images as strings'''
         raise Exception(f'You need to make your own get_img_urls method!')
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, image_headers: dict = None, add_host_to_image_headers: bool = False, replace_image_failed_error_with_warning: bool = False, add_host_but_call_it_something_else: str = None, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
+    def download(self, output_path: str, show_updates_in_terminal: bool = True, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
         '''# The default download function for Chapters. It gets all the image urls for a chapter, then requests those images and saves them
         If the output paths's directory is the name of the chapter, it will save all it's images there, otherwise it will make a directory with the name of the chapter and save the images there
 
@@ -213,27 +230,31 @@ class SharedChapterClass:
 
         for i, img_url in enumerate(img_urls):
             # first we add the hostname to headers under 'Host' if enabled
-            if add_host_to_image_headers:
-                image_headers['Host'] = parse.urlparse(img_url).hostname
+            if self.add_host_to_image_headers:
+                self.image_headers['Host'] = parse.urlparse(img_url).hostname
 
-            if add_host_but_call_it_something_else:
-                image_headers[add_host_but_call_it_something_else] = parse.urlparse(img_url).hostname
+            if self.add_host_but_call_it_something_else:
+                self.image_headers[self.add_host_but_call_it_something_else] = parse.urlparse(img_url).hostname
 
             # secondly we request the img
             img_response = requests.get(img_url)
 
             # next we make sure the request went through
             if img_response.status_code != 200:
+                print(self.image_headers)
+                print(img_response.status_code)
+                print(img_url)
+                continue
                 # we also store the status code in case we need to use it for an error message
                 status_code_one = img_response.status_code
                 # if it didn't, we request it one more time
                 img_response = requests.get(img_url, headers=image_headers)
 
                 # and if that still doesn't work, we raise an error unless replace_image_vailed_error_with_warning is toggled, then we print a warning instead
-                if replace_image_failed_error_with_warning and show_updates_in_terminal and img_response.status_code != 200:
+                if self.replace_image_failed_error_with_warning and show_updates_in_terminal and img_response.status_code != 200:
                     print(f'\033[91m Got status codes {status_code_one} and {img_response.status_code} when requesting \'{img_url}\'. It is highly recommended that you use another source, since downloading here may not get you all the images. This scraper has opted to replace errors with warnings, meaning this is expected behavior.\033[00m')
                 # the elif is here because the first condition needs show updates in terminal, and replace image failed error with warning to be true, but if show updates in terminal isn't, it'll still raise an error even though told not to
-                elif not replace_image_failed_error_with_warning and img_response.status_code != 200:
+                elif not self.replace_image_failed_error_with_warning and img_response.status_code != 200:
                     if img_response.status_code != 200:
                         raise Exception(
                             f'Got status codes {status_code_one} when requesting \'{img_url}\'. Then we retried getting the image, got status code {img_response.status_code}')

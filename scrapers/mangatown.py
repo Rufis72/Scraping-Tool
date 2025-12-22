@@ -7,6 +7,11 @@ from urllib import parse
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www.)?mangatown\.com/manga/[^/]*/(v\d*/)?c\d\d\d+(/\d+\.html)?/?'
+    # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
+    image_headers = {'Referer': 'https://www.mangatown.com/'}
+    add_host_to_image_headers = True
+    replace_image_failed_error_with_warning = False
+    add_host_but_call_it_something_else = 'Alt-Used' # this should be a string of what it should be if used
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -74,9 +79,6 @@ class Chapter(SharedChapterClass):
         # finally we return the imgs we got
         return img_urls
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, replace_image_failed_error_with_warning: bool = False, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
-        super().download(output_path, show_updates_in_terminal, {'Referer': 'https://www.mangatown.com/'}, True, replace_image_failed_error_with_warning, 'Alt-Used', chapter_number, chapter_count, redownload)
-
     def get_name(self) -> str:
         return self.url.strip('/').split('/')[-1]
 
@@ -84,6 +86,7 @@ class Chapter(SharedChapterClass):
 
 class Series(SharedSeriesClass):
     regex = r'(https://)?(www\.)?mangatown\.com/manga/[^/]*/?'
+    chapter_object_reference = Chapter
     def __init__(self, url):
         super().__init__(url)
 
@@ -118,9 +121,6 @@ class Series(SharedSeriesClass):
 
         # finally we just return all the urls
         return chapter_urls
-    
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
-        super().download(output_path, Chapter, show_updates_in_terminal, redownload=redownload)
 
 
 def search(query: str, adult: bool or None = None) -> list[SearchResult]:

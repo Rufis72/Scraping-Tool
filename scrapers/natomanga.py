@@ -7,6 +7,22 @@ from urllib import parse
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?natomanga\.com/manga/[^/]*/chapter-[^/]+/?'
+    # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
+    image_headers = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Sec-GPC": "1",
+    "Referer": "https://www.natomanga.com/",
+    "Sec-Fetch-Dest": "image",
+    "Sec-Fetch-Mode": "no-cors",
+    "Sec-Fetch-Site": "cross-site",
+    "DNT": "1",
+    "Priority": "u=5, i",
+    "TE": "trailers"
+}
+    add_host_to_image_headers = True
+    replace_image_failed_error_with_warning = True
+    add_host_but_call_it_something_else = None # this should be a string of what it should be if used
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -37,18 +53,15 @@ class Chapter(SharedChapterClass):
         image_srcs = []
         for image in img_div.find_all('img'):
             # now we get the img's src and add it to our list of images
-            image_srcs.append(image.get('src'))
+            image_srcs.append(image.get('src').replace('https', 'http'))
 
         # finally we return the image sources
         return image_srcs
 
-    def download(sself, output_path: str, show_updates_in_terminal: bool = True, chapter_number: int = 1, chapter_count: int = 1, redownload: bool = False):
-        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.natomanga.com/'}, add_host_to_image_headers=True, replace_image_failed_error_with_warning=True, redownload=redownload)
-
-
 
 class Series(SharedSeriesClass):
     regex = r'(https://)?(www\.)?natomanga\.com/manga/[^/]*/?'
+    chapter_object_reference = Chapter
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -89,9 +102,6 @@ class Series(SharedSeriesClass):
 
         # the final step is just returning the urls
         return chapter_urls
-    
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
-        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
 
 # all the functions here are for main.py

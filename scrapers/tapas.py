@@ -8,6 +8,11 @@ import json
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?tapas\.io/episode/[\d]+/?'
+    # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
+    image_headers = {}
+    add_host_to_image_headers = False
+    replace_image_failed_error_with_warning = False
+    add_host_but_call_it_something_else = None # this should be a string of what it should be if used
     def __init__(self, url: str):
         super().__init__(url)
         
@@ -54,6 +59,7 @@ class Chapter(SharedChapterClass):
 
 class Series(SharedSeriesClass):
     regex = r'(https://)?(www\.)?tapas\.io/series/[^/]+/?'
+    chapter_object_reference = Chapter
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -136,10 +142,6 @@ class Series(SharedSeriesClass):
 
         # returning the urls
         return episode_urls
-
-
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
-        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
 
 # all the functions here are for main.py

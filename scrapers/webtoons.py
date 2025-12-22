@@ -7,6 +7,11 @@ from urllib import parse
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?webtoons\.com/[^/]+/[^/]+/[^/]+/[^/]+/viewer\?title_no=\d+&episode_no=\d+/?'
+    # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
+    image_headers = {'Referer': 'https://www.webtoons.com/'}
+    add_host_to_image_headers = True
+    replace_image_failed_error_with_warning = False
+    add_host_but_call_it_something_else = None # this should be a string of what it should be if used
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -45,9 +50,6 @@ class Chapter(SharedChapterClass):
         # finally we return the image sources
         return image_srcs
 
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
-        super().download(output_path, show_updates_in_terminal, image_headers={'Referer': 'https://www.webtoons.com/'}, add_host_to_image_headers=True, redownload=redownload)
-
     def get_name(self) -> str:
         # first we parse the url
         parsed_url = parse.urlparse(self.url)
@@ -63,6 +65,7 @@ class Chapter(SharedChapterClass):
 
 class Series(SharedSeriesClass):
     regex = r'(https://)?(www\.)?webtoons\.com/[^/]+/[^/]+/[^/]+/list/?\?title_no=\d+(&page=\d+)?'
+    chapter_object_reference = Chapter
     def __init__(self, url: str):
         super().__init__(url)
 
@@ -115,10 +118,6 @@ class Series(SharedSeriesClass):
 
         # now we just return the chapter urls
         return chapter_urls
-
-
-    def download(self, output_path: str, show_updates_in_terminal: bool = True, redownload: bool = False):
-        super().download(output_path, Chapter, show_updates_in_terminal=show_updates_in_terminal, redownload=redownload)
 
     def get_name(self) -> str:
         # first we get the url's path
