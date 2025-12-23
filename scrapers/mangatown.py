@@ -5,8 +5,10 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
+urls = ['mangatown.com']
+
 class Chapter(SharedChapterClass):
-    regex = r'(https://)?(www.)?mangatown\.com/manga/[^/]*/(v\d*/)?c\d\d\d+(/\d+\.html)?/?'
+    regex = r'(https://)?(www.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/manga/[^/]*/(v\d*/)?c\d\d\d+(/\d+\.html)?/?'
     # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
     image_headers = {'Referer': 'https://www.mangatown.com/'}
     add_host_to_image_headers = True
@@ -85,7 +87,7 @@ class Chapter(SharedChapterClass):
 
 
 class Series(SharedSeriesClass):
-    regex = r'(https://)?(www\.)?mangatown\.com/manga/[^/]*/?'
+    regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/manga/[^/]*/?'
     chapter_object_reference = Chapter
     def __init__(self, url):
         super().__init__(url)

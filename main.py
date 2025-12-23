@@ -14,50 +14,50 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
     '''This returns the mappings of a scraper's name to it's download function, search function, and everything else related to it'''
     return {
         'mangaread': {
-            'url': 'mangaread.org',
+            'url': mangaread.urls[0],
             'series_class_reference': mangaread.Series,
             'chapter_class_reference': mangaread.Chapter,
             'search_function': mangaread.search,
         },
         'manganato': {
-            'url': 'natomanga.com',
+            'url': natomanga.urls[0],
             'series_class_reference': natomanga.Series,
             'chapter_class_reference': natomanga.Chapter,
             'search_function': natomanga.search,
 
         },
         'mangabuddy': {
-            'url': 'mangabuddy.com',
+            'url': mangabuddy.urls[0],
             'series_class_reference': mangabuddy.Series,
             'chapter_class_reference': mangabuddy.Chapter,
             'search_function': mangabuddy.search,
         },
         'webtoons': {
-            'url': 'webtoons.com',
+            'url': webtoons.urls[0],
             'series_class_reference': webtoons.Series,
             'chapter_class_reference': webtoons.Chapter,
             'search_function': webtoons.search,
         },
         'mangatown': {
-            'url': 'mangatown.com',
+            'url': mangatown.urls[0],
             'series_class_reference': mangatown.Series,
             'chapter_class_reference': mangatown.Chapter,
             'search_function': mangatown.search,
         },
         '1manga': {
-            'url': '1manga.co',
+            'url': onemanga.urls[0],
             'series_class_reference': onemanga.Series,
             'chapter_class_reference': onemanga.Chapter,
             'search_function': onemanga.search,
         },
         'bato': {
-            'url': 'xbato.com',
+            'url': bato.urls[0],
             'series_class_reference': bato.Series,
             'chapter_class_reference': bato.Chapter,
             'search_function': bato.search,
         },
         'tapas': {
-            'url': 'tapas.io',
+            'url': tapas.urls[0],
             'series_class_reference': tapas.Series,
             'chapter_class_reference': tapas.Chapter,
             'search_function': tapas.search,

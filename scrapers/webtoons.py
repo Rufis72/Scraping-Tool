@@ -5,8 +5,10 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
+urls = ['webtoons.com']
+
 class Chapter(SharedChapterClass):
-    regex = r'(https://)?(www\.)?webtoons\.com/[^/]+/[^/]+/[^/]+/[^/]+/viewer\?title_no=\d+&episode_no=\d+/?'
+    regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/[^/]+/[^/]+/[^/]+/[^/]+/viewer\?title_no=\d+&episode_no=\d+/?'
     # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
     image_headers = {'Referer': 'https://www.webtoons.com/'}
     add_host_to_image_headers = True
@@ -64,7 +66,7 @@ class Chapter(SharedChapterClass):
         return chapter_name
 
 class Series(SharedSeriesClass):
-    regex = r'(https://)?(www\.)?webtoons\.com/[^/]+/[^/]+/[^/]+/list/?\?title_no=\d+(&page=\d+)?'
+    regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/[^/]+/[^/]+/[^/]+/list/?\?title_no=\d+(&page=\d+)?'
     chapter_object_reference = Chapter
     def __init__(self, url: str):
         super().__init__(url)
