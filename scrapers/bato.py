@@ -13,7 +13,6 @@ urls = ['ato.to', 'dto.to', 'fto.to', 'hto.to', 'jto.to', 'lto.to', 'mto.to', 'n
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/chapter/(\d+)/?'
-    print(regex)
     # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
     image_headers = {}
     add_host_to_image_headers = False
