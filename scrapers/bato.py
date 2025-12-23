@@ -8,7 +8,7 @@ from urllib import parse
 # these are grabbed from https://batomirrors.pages.dev/
 # bato.si bato.ing are included due to them being "v4" meaning different url structure, and website structure
 # soon there should be a bato-v4 scraper, but for now, they're not included
-urls = ['ato.to', 'dto.to', 'fto.to', 'hto.to', 'jto.to', 'lto.to', 'mto.to', 'nto.to', 'vto.to', 'wto.to', 'xto.to', 'yto.to', 'vba.to', 'wba.to', 'xba.to', 'yba.to', 'zba.to', 'bato.ac', 'bato.bz', 'bato.cc', 'bato.cx', 'bato.id', 'bato.pw', 'bato.sh', 'bato.to', 'bato.vc', 'bato.day', 'bato.red', 'bato.run', 'batoto.in', 'batoto.tv', 'batotoo.com', 'batotwo.com', 'batpub.com', 'batread.com', 'battwo.com', 'xbato.com', 'xbato.net', 'xbato.org', 'zbato.com', 'zbato.net', 'zbato.org', 'comiko.net', 'comiko.org', 'mangatoto.com', 'mangatoto.net', 'mangatoto.org', 'batocomic.com', 'batocomic.net', 'batocomic.org', 'readtoto.com', 'readtoto.net', 'readtoto.org', 'kuku.to', 'okok.to', 'ruru.to', 'xdxd.to']
+urls = ['ato.to', 'dto.to', 'fto.to', 'hto.to', 'jto.to', 'lto.to', 'mto.to', 'nto.to', 'vto.to', 'wto.to', 'xto.to', 'yto.to', 'vba.to', 'wba.to', 'xba.to', 'yba.to', 'zba.to', 'bato.ac', 'bato.bz', 'bato.cc', 'bato.cx', 'bato.id', 'bato.pw', 'bato.sh', 'bato.to', 'bato.vc', 'bato.day', 'bato.red', 'bato.run', 'batoto.in', 'batoto.tv', 'batotoo.com', 'batotwo.com', 'batpub.com', 'batread.com', 'battwo.com', 'bato.to', 'xbato.net', 'xbato.org', 'zbato.com', 'zbato.net', 'zbato.org', 'comiko.net', 'comiko.org', 'mangatoto.com', 'mangatoto.net', 'mangatoto.org', 'batocomic.com', 'batocomic.net', 'batocomic.org', 'readtoto.com', 'readtoto.net', 'readtoto.org', 'kuku.to', 'okok.to', 'ruru.to', 'xdxd.to']
 
 
 class Chapter(SharedChapterClass):
@@ -28,7 +28,7 @@ class Chapter(SharedChapterClass):
         Example Code:
         from scrapers.bato import Chapter
 
-        chapter = Chapter('https://xbato.com/chapter/1809486')
+        chapter = Chapter('https://bato.to/chapter/1809486')
         img_urls = chapter.get_img_urls()
         print(img_urls)'''
         # first we request the series page
@@ -62,7 +62,7 @@ class Series(SharedSeriesClass):
         Example Code:
         from scrapers.bato import Series
 
-        series = Series('https://xbato.com/series/95977/frieren-beyond-journey-s-end-official')
+        series = Series('https://bato.to/series/95977/frieren-beyond-journey-s-end-official')
         chapter_urls = series.get_chapter_urls()
         print(chapter_urls)'''
         # first we request the series page
@@ -89,7 +89,7 @@ class Series(SharedSeriesClass):
             if chapter_div.find('a', attrs={'class': 'visited chapt'}) == None:
                 skipped_div_count += 1
             else:
-                chapter_urls.append('https://xbato.com' + chapter_div.find('a', attrs={'class': 'visited chapt'}).get('href'))
+                chapter_urls.append(f'https://{urls[0]}' + chapter_div.find('a', attrs={'class': 'visited chapt'}).get('href'))
 
         # warning the user if more than one was skipped
         if skipped_div_count != len(chapter_urls):
@@ -104,14 +104,14 @@ class Series(SharedSeriesClass):
 
 # all the functions here are for main.py
 def search(query: str, adult: bool or None = None):
-    '''Uses xbato.com's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
+    '''Uses bato.to's search function and returns the top results as a list of SearchResult objects sorted with common.sort_search_results
     :param query: The string to search
     :param adult: If it should include only adult (True), only non-adult (False), or both (None).'''
     # first we turn the query into a url safe query we can later put into a url
     url_safe_query = parse.quote(query)
 
     # next we put the url safe query into a url
-    search_url = f'https://xbato.com/search?word={url_safe_query}'
+    search_url = f'https://{urls[0]}/search?word={url_safe_query}'
 
     # these are the headers
     headers = {
@@ -124,7 +124,7 @@ def search(query: str, adult: bool or None = None):
     # making sure we got a status code 200
     if query_response.status_code != 200:
         raise Exception(
-            f'Recieved status code {query_response.status_code} when searching \'{query}\' on xbato.com')
+            f'Recieved status code {query_response.status_code} when searching \'{query}\' on {urls[0]}')
 
     # now we parse the html
     soup = BeautifulSoup(query_response.content, 'html.parser')
@@ -140,7 +140,7 @@ def search(query: str, adult: bool or None = None):
     search_results = []
     for search_result in results_div.find_all('div', {'class': 'col'}):
         # we add the domain since the links are shortened like this: /name-of-thing
-        url = 'https://xbato.com' + search_result.find('div', attrs={'class': 'item-text'}).find('a', attrs={'class': 'item-title'}).get('href')
+        url = f'https://{urls[0]}' + search_result.find('div', attrs={'class': 'item-text'}).find('a', attrs={'class': 'item-title'}).get('href')
         name = search_result.find('div', attrs={'class': 'item-text'}).find('a', attrs={'class': 'item-title'}).text
 
         # now we turn it into a search result object and save it
