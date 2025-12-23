@@ -5,10 +5,15 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
-urls = ['xbato.com']
+# these are grabbed from https://batomirrors.pages.dev/
+# bato.si bato.ing are included due to them being "v4" meaning different url structure, and website structure
+# soon there should be a bato-v4 scraper, but for now, they're not included
+urls = ['ato.to', 'dto.to', 'fto.to', 'hto.to', 'jto.to', 'lto.to', 'mto.to', 'nto.to', 'vto.to', 'wto.to', 'xto.to', 'yto.to', 'vba.to', 'wba.to', 'xba.to', 'yba.to', 'zba.to', 'bato.ac', 'bato.bz', 'bato.cc', 'bato.cx', 'bato.id', 'bato.pw', 'bato.sh', 'bato.to', 'bato.vc', 'bato.day', 'bato.red', 'bato.run', 'batoto.in', 'batoto.tv', 'batotoo.com', 'batotwo.com', 'batpub.com', 'batread.com', 'battwo.com', 'xbato.com', 'xbato.net', 'xbato.org', 'zbato.com', 'zbato.net', 'zbato.org', 'comiko.net', 'comiko.org', 'mangatoto.com', 'mangatoto.net', 'mangatoto.org', 'batocomic.com', 'batocomic.net', 'batocomic.org', 'readtoto.com', 'readtoto.net', 'readtoto.org', 'kuku.to', 'okok.to', 'ruru.to', 'xdxd.to']
+
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/chapter/(\d+)/?'
+    print(regex)
     # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
     image_headers = {}
     add_host_to_image_headers = False
