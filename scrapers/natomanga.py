@@ -5,7 +5,7 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
-urls = ['natomanga.com']
+urls = ['natomanga.com', 'mgkklot.info', 'mangakakalove.com']
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/manga/[^/]*/chapter-[^/]+/?'
