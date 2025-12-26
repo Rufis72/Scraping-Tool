@@ -5,7 +5,8 @@ from common import SearchResult, sort_search_results
 from common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
-urls = ['natomanga.com', 'mgkklot.info', 'mangakakalove.com']
+urls = ['natomanga.com', 'mangakakalove.com', 
+        'mgkklot.info', 'mgnato.info', 'manganato.my'] # the reason these are on the second line is because they redirect to the above line's urls
 
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/manga/[^/]*/chapter-[^/]+/?'

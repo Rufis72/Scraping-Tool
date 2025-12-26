@@ -6,6 +6,11 @@ import random
 import string
 import re
 
+# just general variables for image filetypes
+image_file_extensions_with_periods = ['.png', '.jpeg', '.jpg', '.gif', '.webp', '.heif', '.avif', '.heic', '.jxl', '.tiff', '.tif']
+image_file_extensions_without_periods = [filetype[1:] for filetype in image_file_extensions_with_periods]
+
+
 class SearchResult:
     '''This is the class for search results from manga websites
     Note: This class is mainly used for readability.
@@ -495,23 +500,17 @@ def sort_strings_naturally(strings) -> list[str]:
 
 def is_image_path(path: str) -> bool:
     '''Evaluates if a path leads to an image file
-    This function's list of image filetypes are png, jpg, jpeg, and gif.
     It also checks if the path leads to a file (so no directorys named img.png)'''
-    return [
-        'png', 
-        'jpeg', 
-        'jpg', 
-        'gif'
-    ].__contains__(os.path.splitext(path)[-1].split('.')[-1].lower()) and os.path.isfile(path)
+    return image_file_extensions_without_periods.__contains__(os.path.splitext(path)[-1].split('.')[-1].lower()) and os.path.isfile(path)
 
 
 def is_image_filename(filename: str) -> bool:
     '''Evaluates if a path leads to an image file
-    This function's list of image filetypes are png, jpg, jpeg, and gif.
     This just checks if the text after the last '.' (lowered) is in the list of image filetypes, so it cannot tell the difference between a directory's name, and a file's name. To do that, use common.is_image_path'''
-    return [
-        'png', 
-        'jpeg', 
-        'jpg', 
-        'gif'
-    ].__contains__(filename.split('.')[-1].lower())
+    return image_file_extensions_without_periods.__contains__(filename.split('.')[-1].lower())
+
+
+def is_image_url(url: str) -> bool:
+    '''Evaluates if a url should lead to an image
+    Should here meaning it does not request it, it only checks if it ends in .[IMAGE FILE EXTENSION HERE]'''
+    return image_file_extensions_without_periods.__contains__(url.split('.')[-1].lower())
