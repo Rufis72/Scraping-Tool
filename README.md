@@ -13,6 +13,7 @@
 - 1manga.co
 - tapas.io
 - comix.to
+- mangadex.org (only chapters hosted on mangadex.org)
 ## Installation
 ### Prerequisites
 Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.

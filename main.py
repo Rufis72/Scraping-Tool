@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import os
-from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga, bato, tapas, comix
+from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga, bato, tapas, comix, mangadex
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
 from common import get_correct_output_path
@@ -68,6 +68,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
             'series_class_reference': comix.Series,
             'chapter_class_reference': comix.Chapter,
             'search_function': comix.search,
+        },
+        'mangadex': {
+            'url': mangadex.urls[0],
+            'series_class_reference': mangadex.Series,
+            'chapter_class_reference': mangadex.Chapter,
+            'search_function': mangadex.search,
         },
     }
 
