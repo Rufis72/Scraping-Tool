@@ -4,16 +4,16 @@
 </p>
 
 ## Supported Sources
-- natomanga/mangakalot (search currently broken due to Cloudflare)
-- webtoons.com
-- bato.to (and proxies)
-- mangabuddy.com
-- mangaread.org
-- mangatown.com
-- 1manga.co
-- tapas.io
-- comix.to
-- mangadex.org (only chapters hosted on mangadex.org)
+- [natomanga](https://natomanga.com)/[mangakalot](https://mangakakalove.com) (search currently broken due to Cloudflare)
+- [webtoons.com](https://webtoons.com)
+- [bato.to](https://bato.to) (and [proxies](https://batomirrors.pages.dev))
+- [mangabuddy.com](https://mangabuddy.com)
+- [mangaread.org](https://mangaread.org)
+- [mangatown.com](https://mangatown.com)
+- [1manga.co](https://1manga.co)
+- [tapas.io](https://tapas.io)
+- [comix.to](https://comix.to)
+- [mangadex.org](https://mangadex.org) (only chapters hosted on mangadex.org)
 ## Installation
 ### Prerequisites
 Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
