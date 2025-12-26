@@ -4,9 +4,9 @@
 </p>
 
 ## Supported Sources
-- natomanga (search currently broken due to Cloudflare)
+- natomanga/mangakalot (search currently broken due to Cloudflare)
 - webtoons.com
-- bato.to
+- bato.to (and proxies)
 - mangabuddy.com
 - mangaread.org
 - mangatown.com
