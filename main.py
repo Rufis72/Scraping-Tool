@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 import os
-from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga, bato, tapas
+from scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga, bato, tapas, comix
 from common import SearchResult, generate_text_with_link, sort_search_results
 from common import construct_chapter_not_found_image
 from common import get_correct_output_path
+import common
 import re
 import difflib
 from formatters.pdf import manga as pdf_manga, webtoon as pdf_webtoon
@@ -61,6 +62,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
             'series_class_reference': tapas.Series,
             'chapter_class_reference': tapas.Chapter,
             'search_function': tapas.search,
+        },
+        'comix': {
+            'url': comix.urls[0],
+            'series_class_reference': comix.Series,
+            'chapter_class_reference': comix.Chapter,
+            'search_function': comix.search,
         },
     }
 
@@ -386,7 +393,7 @@ def format(args):
     # attempting to figure out if the data to be formatted is a serie or not if --is-series was not passed
     if not args.is_series:
         # what we basically check is if the directory has images in it
-        if len([file for file in os.listdir(args.input) if file.lower().endswith(('.png', '.jpeg', '.jpg', '.gif'))]) > 0:
+        if len([file for file in os.listdir(args.input) if file.lower().endswith(common.image_file_extensions_with_periods)]) > 0:
             args.is_series = False
         else:
             args.is_series = True
