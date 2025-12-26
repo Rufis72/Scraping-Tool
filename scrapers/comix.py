@@ -78,7 +78,7 @@ class Series(SharedSeriesClass):
         '''Returns a list of all the chapter urls for a given series
 
         Example Code:
-        from scrapers.natomanga import Series
+        from scrapers.comix import Series
 
         series = Series('https://comix.to/title/pvry-one-piece')
         chapter_urls = series.get_chapter_urls()
@@ -106,7 +106,7 @@ class Series(SharedSeriesClass):
             i += 1
 
             # requesting the url
-            response = requests.get(f'https://comix.to/api/v2/manga/{series_id}/chapters?limit=100&page={i}&order[number]=asc')
+            response = requests.get(f'https://{urls[0]}/api/v2/manga/{series_id}/chapters?limit=100&page={i}&order[number]=asc')
 
             # making sure we got a status code 200
             if response.status_code != 200:
@@ -196,7 +196,7 @@ def search(query: str, adult: bool or None = None):
 
     # making sure we got a status code 200
     if query_response.status_code != 200:
-        raise Exception(f'Recieved status code {query_response.status_code} when searching \'{query}\' on natomanga.com')
+        raise Exception(f'Recieved status code {query_response.status_code} when searching \'{query}\' on {urls[0]}')
 
     # now we parse the json
     response_json: dict = json.loads(query_response.content.decode()).get('result')
