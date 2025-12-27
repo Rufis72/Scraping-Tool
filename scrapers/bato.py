@@ -93,7 +93,7 @@ class Series(SharedSeriesClass):
 
         # warning the user if more than one was skipped
         if skipped_div_count != len(chapter_urls):
-            print(f'When downloading the seires at {self.url}, there were {skipped_div_count} skipped divs, instead of the expected {len(chapter_urls)} (the amount of chapter urls there are). Please create an issue on the Github repo at https://github.com/Rufis72/Scraping-Tool/issues')
+            print(f'When downloading the seires at {self.url}, there were {skipped_div_count} skipped divs, instead of the expected {len(chapter_urls)} (the amount of chapter urls there are). Please create an issue on the Github repo at https://github.com/Rufis72/mangadl/issues')
 
         # after that we reverse it so the last chapter isn't at index 0
         chapter_urls.reverse()

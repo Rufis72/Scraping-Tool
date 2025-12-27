@@ -10,7 +10,7 @@ urls = ['mangadex.org']
 class Chapter(SharedChapterClass):
     regex = r'(https://)?(www\.)?' + f'({'|'.join([url.replace('.', r'\.') for url in urls])})' + r'/chapter/[^/]+/?'
     # refer to common.py's SharedChapterClass in this same spot for an explanation of thise code
-    image_headers = {'User-Agent': 'https://github.com/Rufis72/Scraping-Tool'}
+    image_headers = {'User-Agent': 'https://github.com/Rufis72/mangadl'}
     add_host_to_image_headers = False
     replace_image_failed_error_with_warning = False
     add_host_but_call_it_something_else = None # this should be a string of what it should be if used
@@ -34,7 +34,7 @@ class Chapter(SharedChapterClass):
 
         # sending a request to the api
         headers = {
-            'User-Agent': 'https://github.com/Rufis72/Scraping-Tool'
+            'User-Agent': 'https://github.com/Rufis72/mangadl'
         }
         response = requests.get(api_url_request, headers=headers)
 
@@ -78,7 +78,7 @@ class Series(SharedSeriesClass):
 
         # sending a request to the api
         headers = {
-            'User-Agent': 'https://github.com/Rufis72/Scraping-Tool'
+            'User-Agent': 'https://github.com/Rufis72/mangadl'
         }
         response = requests.get(api_url_request, headers=headers, params={'translatedLanguage[]': ['en']})
 

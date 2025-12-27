@@ -535,7 +535,7 @@ if __name__ == '__main__':
     '''This does all the handling of the arguments when run from the command line'''
     # first we declare a parser to parse the arguments
     # the description is the description that will appear near the top when -h or --help is called
-    parser = argparse.ArgumentParser(description='Scraping Tool is a scraper with a cli coded in python3. It\'s main use is scraping manga, and manga related items.')
+    parser = argparse.ArgumentParser(description='mangadl is a simple cli for scraping and formatting manga.')
 
     # creating the subparser so we can have multiple sub commands like main.py download and main.py format
     subparsers = parser.add_subparsers(dest='command', required=True)

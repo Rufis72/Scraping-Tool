@@ -1,6 +1,6 @@
-<h1 align="center">Scraping Tool</h1>
+<h1 align="center">mangadl</h1>
 <p align="center">
-<a href="https://github.com/Rufis72/Scraping-Tool/blob/master/LICENSE"><img src="https://img.shields.io/github/license/Rufis72/Scraping-Tool.svg?style=for-the-badge" alt="License"></a>
+<a href="https://github.com/Rufis72/mangadl/blob/master/LICENSE"><img src="https://img.shields.io/github/license/Rufis72/mangadl.svg?style=for-the-badge" alt="License"></a>
 </p>
 
 ## Supported Sources
@@ -19,8 +19,8 @@
 Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
 ### Installation
 ```shell
-git clone https://github.com/Rufis72/Scraping-Tool
-cd Scraping-Tool
+git clone https://github.com/Rufis72/mangadl
+cd mangadl
 pip3 install -r requirements.txt
 ```
 ### Setup
