@@ -542,7 +542,7 @@ if __name__ == '__main__':
 
     # creating the subcommands
     download_parser = subparsers.add_parser('download', help='Downloads a url from a supported website, or searches then downloads the chosen search result with -s')
-    format_parser = subparsers.add_parser('format', help='Formats downloaded manga into different file formats')
+    format_parser = subparsers.add_parser('format', help='Formats downloaded manga into a given file format')
 
     # ------------------------------------------------------------------------- DOWNLOAD -------------------------------------------------------------------------
     # create a mutually exclusive group 
@@ -552,16 +552,16 @@ if __name__ == '__main__':
     download_group.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
 
     # add the text argument to the group
-    download_group.add_argument('text', type=str, nargs='?', help='The url to be scraped and downloaded')
+    download_group.add_argument('text', type=str, nargs='?', help='The url to be downloaded')
 
     # add the search arguments to the group
-    download_group.add_argument('--search', '-s', type=str, help='If the text entered should be treated as a query or not')
+    download_group.add_argument('--search', '-s', type=str, help='If we should search for the manga to be downloaded, and what query to use')
     download_parser.add_argument('--count', type=int, help='How many search results to take from each website when searching all websites. Default is 3', default=3)
 
     # all the normal download flags
     download_parser.add_argument('--output', '-o', type=str, help='The output path where the extracted data will be saved')
     download_parser.add_argument('--adult', '-a', type=bool, help='If search results should include adult content')
-    download_parser.add_argument('--chapter', '-c', type=str, help='The chapter to be downloaded. Can be be a single number like: --chapter 4, or multiple chapters like: --chapter 0-4, or --chapter 0:4')
+    download_parser.add_argument('--chapter', '-c', type=str, help='The specific chapter to be downloaded from a series. I.e, if you wanna download chapter four of one piece, you could pass -c 4. It can also be multiple chapters like: --chapter 0-4, or --chapter 0:4')
     download_parser.add_argument('--website', '-w', type=str, help='The ID of a website to be searched instead of all websites')
     download_parser.add_argument('--redownload', action='store_true', default=False, help='If chapters should be redownloaded, even if already downloaded. Defaults to false.')
 
