@@ -1,7 +1,7 @@
 import bs4
 import requests
-from common import SearchResult, sort_search_results
-from common import SharedChapterClass, SharedSeriesClass
+from mangadl.common import SearchResult, sort_search_results
+from mangadl.common import SharedChapterClass, SharedSeriesClass
 import urllib.parse
 
 urls = ['mangaread.org']

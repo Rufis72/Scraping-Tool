@@ -1,28 +1,27 @@
-from PyPDF2 import PdfMerger
-from reportlab.pdfgen import canvas
+from PIL import Image
+from PyPDF2 import PdfMerger, PdfWriter
 import os
-import common
+import mangadl.common
+from mangadl.common import sort_strings_naturally
 import math
 import shutil
-from PIL import Image
-from common import sort_strings_naturally
 
-class PDFWebtoonChapter:
-    '''A class for saving a chapter as a PDF, formatted as a webtoon'''
+class PDFMangaChapter:
+    '''A class for saving a chapter as a PDF'''
     def __init__(self, content_path: str):
         ''':param content_path: The path to the directory with the images in it'''
         self.content_path = content_path
 
     def format(self, output_path: str):
-        '''Formats a chapter's images as a PDF in webtoon format and saves it to the output path.
+        '''Formats a chapter's images as a PDF and saves it to the output path.
         :param output_path: The path to the file where the PDF will be saved. If the path to a directory is passed, it will create a output.pdf file'''
         # getting the list of all images
         # what we do is we go through every file in the directory and check if it's a img file
         # if it is, we add it to the list of filenames
-        image_filenames = []
+        images = []
         for filename in sorted(os.listdir(self.content_path)):
             if common.is_image_filename(filename):
-                image_filenames.append(os.path.join(self.content_path, filename))
+                images.append(Image.open(os.path.join(self.content_path, filename)))
 
         # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty
         # we just make an empty pdf to satisfy the Series pdf merging
@@ -41,40 +40,13 @@ class PDFWebtoonChapter:
         if os.path.isdir(output_path):
             output_path = os.path.join(os.path.join(output_path, 'output.pdf'))
 
-        # loading all the images
-        images = [Image.open(image_filename) for image_filename in image_filenames]
-
-        # getting the x for this chapter page
-        # we do this by getting the biggest image's x, and use that
-        page_x = max([image.size[0] for image in images])
-
-        # then we get the page y
-        # that's just the sum of all the page's y
-        page_y = sum([image.size[1] for image in images])
-
-        # now we make a canvas to draw the images to
-        c = canvas.Canvas(output_path, pagesize=(page_x, page_y))
-
-        # we start at the end, since a y of 0 is at the bottom of the PDF
-        image_y = page_y
-
-        for i, image_path in enumerate(image_filenames):
-            c.drawImage(
-                image_path,
-                0,
-                image_y,
-                images[i].size[0], # this is set to be the same for every image, since most websites stretch or shrink there images a small amount, so this will resize them. It can be removed and replaced with '(page_x - images[i].size[0]) / 2' to center images instead
-                images[i].size[1]
-            )
-            
-            # now we add the image's height to the sum of all previous image's y, so the next image is right after this one
-            image_y -= images[i].size[1]
-
         # saving the pdf
-        c.save()
+        images[0].save(
+            output_path, 'PDF', resolution=100.0, save_all=True, append_images=images[1:]
+        )
 
-class PDFWebtoonSeries:
-    '''A class for saving a downloaded webtoon as a PDF'''
+class PDFMangaSeries:
+    '''A class for saving a series as a PDF'''
     def __init__(self, content_path: str):
         ''':param content_path: The path to the directory with the chapter directorys with images in it'''
         self.content_path = content_path
@@ -105,11 +77,11 @@ class PDFWebtoonSeries:
         # we sort the chapters here, since because of how naming works (they're taken from the website directly), there isn't typically leading 0s
         for i, chapter_directory_name in enumerate(sort_strings_naturally(chapter_directory_names)):
             # giving an update to the user that we've started making pdfs for the chapters
-            print(f'Started formatting episode {i} as a PDF')
+            print(f'Started formatting chapter {i} as a PDF')
 
             # then we format everything and save it there
-            # first we make a PDFWebtoonChapter object for the chapter
-            chapter_object = PDFWebtoonChapter(os.path.join(self.content_path, chapter_directory_name))
+            # first we make a PDFMangaChapter object for the chapter
+            chapter_object = PDFMangaChapter(os.path.join(self.content_path, chapter_directory_name))
 
             # then we format it
             chapter_object.format(os.path.join(temp_path, f'chapter {i:02d}.pdf'))
@@ -126,7 +98,7 @@ class PDFWebtoonSeries:
         # now we merge them
         for i in range(math.ceil(len(chapter_directory_names) / chapters_per_pdf)):
             # telling the user we're merging the PDFs
-            print(f'Started merging the individual episode PDFs ({i + 1}/{math.ceil(len(chapter_directory_names) / chapters_per_pdf)})')
+            print(f'Started merging the individual chapter PDFs ({i + 1}/{math.ceil(len(chapter_directory_names) / chapters_per_pdf)})')
 
             # first we get the chapters we're merging
             pdfs_to_merge_paths = chapter_pdf_paths[i * chapters_per_pdf:(min(len(chapter_directory_names), (i + 1) * chapters_per_pdf))]
@@ -140,12 +112,14 @@ class PDFWebtoonSeries:
             # saving the file
             # if the output path is a directory, we add the formatted pdf chapter name to the output path, otherwise, we just use the passed output_path
             if os.path.isdir(output_path):
-                output_path = os.path.join(
+                new_output_path = os.path.join(
                     output_path, 
                     pdf_chapter_naming_scheme.replace('[series_name]', series_name).replace('[chapter_start]', str(i * chapters_per_pdf)).replace('[chapter_end]', str(min(len(chapter_directory_names) - 1, (i + 1) * chapters_per_pdf))) + '.pdf'
                 )
-            
-            merger.write(output_path)
+            else:
+                new_output_path = output_path
+
+            merger.write(new_output_path)
             merger.close()
 
         # deleting the temp directory

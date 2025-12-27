@@ -1,9 +1,9 @@
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from common import SearchResult, sort_search_results
-from common import SharedChapterClass, SharedSeriesClass
-import common
+from mangadl.common import SearchResult, sort_search_results
+from mangadl.common import SharedChapterClass, SharedSeriesClass
+import mangadl.common
 from urllib import parse
 import json
 

@@ -1,8 +1,8 @@
 import bs4
 import requests
 from bs4 import BeautifulSoup
-from common import SearchResult, sort_search_results
-from common import SharedChapterClass, SharedSeriesClass
+from mangadl.common import SearchResult, sort_search_results
+from mangadl.common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
 # these are grabbed from https://batomirrors.pages.dev/
