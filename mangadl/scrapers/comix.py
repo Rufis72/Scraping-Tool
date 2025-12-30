@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from mangadl.common import SearchResult, sort_search_results
 from mangadl.common import SharedChapterClass, SharedSeriesClass
-import mangadl.common
+from mangadl import common
 from urllib import parse
 import json
 
@@ -132,7 +132,7 @@ class Series(SharedSeriesClass):
         # if there is no url, we just use index 0
         # this is (I believe) O(n^2), but it should be fine since it's a pretty small number, and python is pretty fast
         scanned_chapter_numbers = []
-        urls = []
+        chapter_urls = []
         for specific_chapter_data in chapter_data:
             # getting the chapter number
             chapter_number = specific_chapter_data.get('number')
@@ -154,7 +154,7 @@ class Series(SharedSeriesClass):
                 for this_specific_chapter_data in chapters_with_that_chapter_number:
                     if this_specific_chapter_data.get('is_official') == 1:
                         # adding the url
-                        urls.append(f'{self.url.rstrip('/')}/{this_specific_chapter_data.get('chapter_id')}')
+                        chapter_urls.append(f'{self.url.rstrip('/')}/{this_specific_chapter_data.get('chapter_id')}')
 
                         # setting that we found an official one to true
                         found_official = True
@@ -164,9 +164,9 @@ class Series(SharedSeriesClass):
                 
                 if not found_official:
                     # otherwise, if ther was no official one, we just add index 0
-                    urls.append(f'{self.url.rstrip('/')}/{specific_chapter_data.get('chapter_id')}')
+                    chapter_urls.append(f'{self.url.rstrip('/')}/{specific_chapter_data.get('chapter_id')}')
 
-        return urls
+        return chapter_urls
     
 
     def get_name(self) -> str:
