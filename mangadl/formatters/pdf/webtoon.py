@@ -1,4 +1,4 @@
-from PyPDF2 import PdfMerger
+from PyPDF2 import PdfMerger, PdfWriter
 from reportlab.pdfgen import canvas
 import os
 from mangadl import common
