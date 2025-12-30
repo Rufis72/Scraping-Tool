@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mangadl',
-    version='1.0.0',
+    version='1.0.1',
     description='A simple cli for scraping and formatting manga.',
     author='Rufis72',
     license='MIT',
