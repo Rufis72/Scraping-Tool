@@ -32,11 +32,11 @@ mangadl download 'https://bato.to/title/83510-one-piece-official'
 ```
 Download a manga via searching
 ```shell
-mangadl search 'One Piece'
+mangadl download -s 'One Piece'
 ```
 Download a manga via searching on a specific website
 ```shell
-mangadl search 'One Piece' -w bato
+mangadl download -s 'One Piece' -w bato
 ```
 List all possible websites to search on specifically
 ```shell
@@ -48,7 +48,7 @@ mangadl download 'https://bato.to/title/83510-one-piece-official' -c 1146
 ```
 Download multiple chapters
 ```shell
-mangadl search 'One Piece' -c 1100:1146
+mangadl download -s 'One Piece' -c 1100:1146
 ```
 Format downloaded manga as a PDF (formatting it as one image per page)
 ```shell
