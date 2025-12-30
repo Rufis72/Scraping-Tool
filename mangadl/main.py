@@ -445,85 +445,93 @@ def download(args):
     if args.chapter:
         args.chapter = args.chapter.replace(':', '-')
 
-    # since they didn't want to list valid website IDs, we figure out if the user wants to search something
-    # this is simple enough, since we just check if something has been passed to --search
-    if args.search:
-        # first we get the search results
-        # if it's a meta search (searching all websites) we use the search function
-        # otherwise we just use the scraper's search function directly
-        if args.website:
-            # here we check if the given website id is valid
-            if get_scraper_mappings().get(args.website) == None:
-                # now we tell the user that it wasn't valid, and how to get a list of them
-                print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangadl list-ids')
-                return
-            # we try here in case we get an error
-            search_results = get_scraper_mappings().get(args.website).get('search_function')(args.search, args.adult)
+    # we can basically just call download, and have it do it all for us
+    # the only thing we have to do is get the output path, which is simple
+    # if there is no output path specified, it's the working directory, otherwise, it's whatever was specified
+    if args.output:
+        output_path = args.output
+    else:
+        output_path = os.getcwd()
+
+    # here we check if we should be downloading a specific chapter
+    if args.chapter:
+        # then we check if there's a dash (if we should dowpnload multiple chapters, but not the whole series
+        if args.chapter.__contains__('-'):
+            download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path, args.redownload)
+        # just downloading one chapter
         else:
-            search_results = search(args.search, args.adult, args.count)
+            download_chapter_by_chapter_num(args.text, int(args.chapter), output_path, args.redownload)
 
-        # next, we construct the search results stuff we'll print
-        search_results_user_prompt = 'Please enter the number of the manga you\'d like to download'
-        # here we go through every search result and add it to the strings we're about to print
-        for i, search_result in enumerate(search_results):
-            # first we make a new line for every search result
-            search_results_user_prompt += '\n'
+    # otherwise we just download as usual
+    else:
+        download_generic(args.text, output_path, args.redownload)
 
-            # next we add the number and data for the search result
-            search_results_user_prompt += f'{i}: {generate_text_with_link(search_result.url, search_result.name)} ({get_scraper_mappings().get(search_result.website_id).get('url')})'
+def search_from_cli(args):
+    '''Takes paramter args, and uses those args to search, then download the selected search result
+    The reason it's not named like the other cli commands, is because there was already a search function in main, and for now I don't feel like seperating the functions into different files, or thinking of new names'''
+    # first we get the search results
+    # if it's a meta search (searching all websites) we use the search function
+    # otherwise we just use the scraper's search function directly
+    if args.website:
+        # here we check if the given website id is valid
+        if get_scraper_mappings().get(args.website) == None:
+            # now we tell the user that it wasn't valid, and how to get a list of them
+            print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangadl list-ids')
+            return
+        # we try here in case we get an error
+        search_results = get_scraper_mappings().get(args.website).get('search_function')(args.text, args.adult)
+    else:
+        search_results = search(args.text, args.adult, args.count)
 
-        # we add a new line character here, since the string would be missing one otherwise
+    # next, we construct the search results stuff we'll print
+    search_results_user_prompt = 'Please enter the number of the manga you\'d like to download'
+    # here we go through every search result and add it to the strings we're about to print
+    for i, search_result in enumerate(search_results):
+        # first we make a new line for every search result
         search_results_user_prompt += '\n'
 
-        # if there were no search results, we alert the user and end the script
-        if not search_results:
-            print(f'No results found for query \'{args.search}\'')
-            return None
+        # next we add the number and data for the search result
+        search_results_user_prompt += f'{i}: {generate_text_with_link(search_result.url, search_result.name)} ({get_scraper_mappings().get(search_result.website_id).get('url')})'
 
-        # since there were search results, we get the input from the user of which one to download
-        one_to_download = input(search_results_user_prompt)
+    # we add a new line character here, since the string would be missing one otherwise
+    search_results_user_prompt += '\n'
 
-        # finally, we download the chosen search result
-        # first we check if -o flag has an output path, or if we should just save everything in the working directory
-        if args.output:
-            output_path = args.output
+    # if there were no search results, we alert the user and end the script
+    if not search_results:
+        print(f'No results found for query \'{args.text}\'')
+        return None
+
+    # since there were search results, we get the input from the user of which one to download
+    # the loop is here to make sure the user enters a valid number
+    # we print the text here to make usre we don't print it multiple times if the user enters an invalid number
+    print(search_results_user_prompt, end='')
+
+    # now here's the actual loop
+    selected_url = None
+    while selected_url == None:
+        # getting the user input
+        one_to_download = input('')
+
+        # making sure that's a valid number
+        try:
+            int(one_to_download.strip(' '))
+        except:
+            print(f'"{one_to_download}" does not appear to be a number. Please enter the number of the manga you\'d like to download')
+            continue
+
+        # now we that we know it's a valid number, we make sure that it's in range of the amount of options there are
+        if not int(one_to_download.strip(' ')) < len(search_results):
+            print(f'Cannot get search result {one_to_download.strip(' ')}, as there are only {len(search_results)} total search results. Please enter the number of the manga you\'d like to download')
+
         else:
-            output_path = os.getcwd()
+            selected_url = search_results[int(one_to_download.strip(' '))].url
 
-        # before we download it, we've gotta check if we should be downloading a specific chapter specified by the --chapter flag (or -c)
-        if args.chapter:
-            # then we check if there's a dash (if we should download multiple chapters, but not the whole series
-            if args.chapter.__contains__('-'):
-                download_chapters(search_results[int(one_to_download)].url, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path, args.redownload)
-            # just downloading one chapter
-            else:
-                download_chapter_by_chapter_num(search_results[int(one_to_download)].url, int(args.chapter), output_path, args.redownload)
-        else:
-            # since we're not downloading a specific, chapter we download the entire series
-            download_series(search_results[int(one_to_download)].url, output_path, args.redownload)
 
-    # this is for just downloading a url
-    elif args.text:
-        # we can basically just call download, and have it do it all for us
-        # the only thing we have to do is get the output path, which is simple
-        # if there is no output path specified, it's the working directory, otherwise, it's whatever was specified
-        if args.output:
-            output_path = args.output
-        else:
-            output_path = os.getcwd()
+    # now that we have the url, we edit the args a little, then pass that to download
+    # we edit text, and pass the rest to preserve the flags passed that the user may have passed for download
+    args.text = selected_url
+    download(args)
 
-        # here we check if we should be downloading a specific chapter
-        if args.chapter:
-            # then we check if there's a dash (if we should dowpnload multiple chapters, but not the whole series
-            if args.chapter.__contains__('-'):
-                download_chapters(args.text, int(args.chapter.split('-')[0]) - 1, int(args.chapter.split('-')[1]) - 1 if args.chapter.split('-')[1] != '' else None, output_path, args.redownload)
-            # just downloading one chapter
-            else:
-                download_chapter_by_chapter_num(args.text, int(args.chapter), output_path, args.redownload)
-
-        # otherwise we just download as usual
-        else:
-            download_generic(args.text, output_path, args.redownload)
 
 def list_ids():
     print('\n'.join(get_scraper_mappings().keys()))
