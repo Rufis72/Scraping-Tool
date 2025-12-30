@@ -17,11 +17,18 @@
 ## Installation
 ### Prerequisites
 Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
-### Installation
+### pip
 ```shell
 git clone https://github.com/Rufis72/mangadl
 cd mangadl
 pip3 install -e .
+```
+### pipx
+Using pipx may be preferrable when using a package manager, as installing a package globally with pip while also having a package manager can brake your python installation.
+```shell
+git clone https://github.com/Rufis72/mangadl
+cd mangadl
+pipx install -e .
 ```
 
 ## Usage
