@@ -368,7 +368,7 @@ def format(args):
     if args.content_format == None:
         if not args.disable_warnings:
             print('No content type was given for formatting, meaning it will default to formatting the content as manga. To format a webtoon pass \'--content-format webtoon\'')
-        args.content_type = 'manga'
+        args.content_format = 'manga'
 
     # a dict for the different imports for formatting, to avoid a ton of if statements
     format_imports = {
@@ -398,7 +398,7 @@ def format(args):
     # attempting to figure out if the data to be formatted is a serie or not if --is-series was not passed
     if not args.is_series:
         # what we basically check is if the directory has images in it
-        if len([file for file in os.listdir(args.input) if file.lower().endswith(common.image_file_extensions_with_periods)]) > 0:
+        if len([filename for filename in os.listdir(args.input) if common.is_image_filename(filename)]) > 0:
             args.is_series = False
         else:
             args.is_series = True
@@ -417,7 +417,7 @@ def format(args):
 
 
     # now we use that dict to get the class we're using for formatting
-    formatting_class = format_imports.get(args.file_format.lower().lstrip('.')).get(args.content_type).get(args.is_series)
+    formatting_class = format_imports.get(args.file_format.lower().lstrip('.')).get(args.content_format).get(args.is_series)
 
     # now we initialize the object
     # if -i wasn't passed, we default to the current directory
