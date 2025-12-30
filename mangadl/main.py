@@ -4,7 +4,7 @@ from mangadl.scrapers import mangaread, natomanga, mangabuddy, webtoons, mangato
 from mangadl.common import SearchResult, generate_text_with_link, sort_search_results
 from mangadl.common import construct_chapter_not_found_image
 from mangadl.common import get_correct_output_path
-import mangadl.common
+from mangadl import common
 import re
 import difflib
 from mangadl.formatters.pdf import manga as pdf_manga, webtoon as pdf_webtoon

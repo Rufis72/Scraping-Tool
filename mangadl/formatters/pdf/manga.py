@@ -1,7 +1,7 @@
 from PIL import Image
 from PyPDF2 import PdfMerger, PdfWriter
 import os
-import mangadl.common
+from mangadl import common
 from mangadl.common import sort_strings_naturally
 import math
 import shutil

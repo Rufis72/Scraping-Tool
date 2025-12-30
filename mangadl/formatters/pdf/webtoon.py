@@ -1,7 +1,7 @@
 from PyPDF2 import PdfMerger
 from reportlab.pdfgen import canvas
 import os
-import mangadl.common
+from mangadl import common
 from mangadl.common import sort_strings_naturally
 import math
 import shutil
