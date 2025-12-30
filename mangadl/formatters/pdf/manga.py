@@ -18,14 +18,14 @@ class PDFMangaChapter:
         # getting the list of all images
         # what we do is we go through every file in the directory and check if it's a img file
         # if it is, we add it to the list of filenames
-        images = []
+        image_filenames = []
         for filename in sorted(os.listdir(self.content_path)):
             if common.is_image_filename(filename):
-                images.append(Image.open(os.path.join(self.content_path, filename)))
+                image_filenames.append(os.path.join(self.content_path, filename))
 
         # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty
         # we just make an empty pdf to satisfy the Series pdf merging
-        if len(images) == 0:
+        if len(image_filenames) == 0:
             print(f'Could not find any images in directory {self.content_path}. Skipping...')
 
             # making the empty pdf
@@ -39,6 +39,9 @@ class PDFMangaChapter:
         # adding output.pdf to the output_path if output_path is a directory
         if os.path.isdir(output_path):
             output_path = os.path.join(os.path.join(output_path, 'output.pdf'))
+
+        # loading all the images
+        images = [Image.open(image_filename) for image_filename in image_filenames]
 
         # saving the pdf
         images[0].save(

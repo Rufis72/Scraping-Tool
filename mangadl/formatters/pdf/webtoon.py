@@ -26,7 +26,7 @@ class PDFWebtoonChapter:
 
         # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty
         # we just make an empty pdf to satisfy the Series pdf merging
-        if len(images) == 0:
+        if len(image_filenames) == 0:
             print(f'Could not find any images in directory {self.content_path}. Skipping...')
 
             # making the empty pdf
