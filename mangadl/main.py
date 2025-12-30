@@ -441,10 +441,6 @@ def format(args):
 
 def download(args):
     '''Does all the downloading stuff with the passed in args'''
-    # first we check if the user wants to list all valid website IDs
-    if args.list_ids:
-        print('\n'.join(get_scraper_mappings().keys()))
-
     # replacing : to - for -c and --chapters so you can do 1:20 or 1-20
     if args.chapter:
         args.chapter = args.chapter.replace(':', '-')
@@ -459,7 +455,7 @@ def download(args):
             # here we check if the given website id is valid
             if get_scraper_mappings().get(args.website) == None:
                 # now we tell the user that it wasn't valid, and how to get a list of them
-                print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangascraper --list-ids')
+                print(f'\'{args.website}\' wasn\'t a valid website ID. To see all valid website IDs run:\nmangadl list-ids')
                 return
             # we try here in case we get an error
             search_results = get_scraper_mappings().get(args.website).get('search_function')(args.search, args.adult)
@@ -528,3 +524,6 @@ def download(args):
         # otherwise we just download as usual
         else:
             download_generic(args.text, output_path, args.redownload)
+
+def list_ids():
+    print('\n'.join(get_scraper_mappings().keys()))

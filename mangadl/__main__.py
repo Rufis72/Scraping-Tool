@@ -1,5 +1,5 @@
 import argparse
-from .main import format, download
+from .main import format, download, list_ids
 
 def run():
     '''This does all the handling of the arguments when run from the command line'''
@@ -13,13 +13,11 @@ def run():
     # creating the subcommands
     download_parser = subparsers.add_parser('download', help='Downloads a url from a supported website, or searches then downloads the chosen search result with -s')
     format_parser = subparsers.add_parser('format', help='Formats downloaded manga into a given file format')
+    list_ids_parser = subparsers.add_parser('list-ids', help='Lists all valid website IDs')
 
     # ------------------------------------------------------------------------- DOWNLOAD -------------------------------------------------------------------------
     # create a mutually exclusive group 
     download_group = download_parser.add_mutually_exclusive_group(required=True)
-
-    # add the --list-ids argument to the group
-    download_group.add_argument('--list-ids', action='store_true', help='Lists all valid website IDs')
 
     # add the text argument to the group
     download_group.add_argument('text', type=str, nargs='?', help='The url to be downloaded')
@@ -59,6 +57,9 @@ def run():
 
     elif args.command == 'format':
         format(args)
+
+    elif args.command == 'list-ids':
+        list_ids()
 
 if __name__ == '__main__':
     run()
