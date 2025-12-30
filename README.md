@@ -16,7 +16,7 @@
 - [mangadex.org](https://mangadex.org) (only chapters hosted on mangadex.org)
 ## Installation
 ### Prerequisites
-Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
+Before installing, make sure you have a semi-recent version of [pip](https://pypi.org/project/pip/)/[pipx](https://pipx.pypa.io/latest/installation/) (or your Python package manager of choice) and [Python](https://www.python.org/downloads/) installed.
 ### pip
 ```shell
 git clone https://github.com/Rufis72/mangadl
