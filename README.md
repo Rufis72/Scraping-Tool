@@ -21,10 +21,8 @@ Before installing, make sure you have a semi-recent version of [pip](https://pyp
 ```shell
 git clone https://github.com/Rufis72/mangadl
 cd mangadl
-pip3 install -r requirements.txt
-```
-### Setup
-Once you finish, you may want to add mangadl to path to make it easier to run
+pip3 install -e .
+'''
 
 ## Usage
 ### Examples

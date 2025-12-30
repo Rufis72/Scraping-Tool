@@ -1,7 +1,7 @@
 import argparse
 from .main import format, download
 
-if __name__ == '__main__':
+def run():
     '''This does all the handling of the arguments when run from the command line'''
     # first we declare a parser to parse the arguments
     # the description is the description that will appear near the top when -h or --help is called
@@ -59,3 +59,6 @@ if __name__ == '__main__':
 
     elif args.command == 'format':
         format(args)
+
+if __name__ == '__main__':
+    run()
