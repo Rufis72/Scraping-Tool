@@ -22,7 +22,7 @@ Before installing, make sure you have a semi-recent version of [pip](https://pyp
 git clone https://github.com/Rufis72/mangadl
 cd mangadl
 pip3 install -e .
-'''
+```
 
 ## Usage
 ### Examples
