@@ -66,6 +66,12 @@ class Chapter(SharedChapterClass):
 
         # then we return it
         return img_urls
+    
+    def get_name(self) -> str:
+        # we request the url here, and if it's a redirect, we parse that url and return it, otherwise we just parse self.url
+        # but since if we don't get redirected, the url will be the same, we just use response.url for everything
+        response = requests.get(self.url)
+        return(f'{int(response.url.rstrip('/').strip('-')[-1]):04d}')
 
 
 class Series(SharedSeriesClass):
