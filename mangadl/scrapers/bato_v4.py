@@ -181,5 +181,3 @@ def search(query: str, adult: bool or None = None):
 
     # finally we return the sorted search results
     return sorted_search_results
-
-search()
