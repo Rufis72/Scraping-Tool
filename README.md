@@ -6,7 +6,7 @@
 ## Supported Sources
 - [natomanga](https://natomanga.com)/[mangakalot](https://mangakakalove.com) (search currently broken due to Cloudflare)
 - [webtoons.com](https://webtoons.com)
-- [bato.to](https://bato.to) [non v4 sites](https://batomirrors.pages.dev) and v4 sites ((bato.si)[bato.si]/(bato.ing)[bato.ing])
+- [bato.to](https://bato.to) (both v4 and non v4 sites) See all mirror urls at [batomirrors.pages.dev/](https://batomirrors.pages.dev/)
 - [mangabuddy.com](https://mangabuddy.com)
 - [mangaread.org](https://mangaread.org)
 - [mangatown.com](https://mangatown.com)
