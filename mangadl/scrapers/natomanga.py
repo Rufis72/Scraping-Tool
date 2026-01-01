@@ -5,7 +5,7 @@ from mangadl.common import SearchResult, sort_search_results
 from mangadl.common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
-urls = ['natomanga.com', 'mangakakalove.com', 
+urls = ['natomanga.com', 'mangakakalove.com'
         'mgkklot.info', 'mgnato.info', 'manganato.my'] # the reason these are on the second line is because they redirect to the above line's urls
 
 class Chapter(SharedChapterClass):
@@ -83,7 +83,7 @@ class Series(SharedSeriesClass):
         # making sure we got a status code 200
         if response.status_code != 200:
             raise Exception(
-                f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
+                f'Recieved status code {response.status_code} when requesting the series at \'{self.url}\'')
 
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')

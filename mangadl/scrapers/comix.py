@@ -117,7 +117,7 @@ class Series(SharedSeriesClass):
             # making sure we got a status code 200
             if response.status_code != 200:
                 raise Exception(
-                    f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
+                    f'Recieved status code {response.status_code} when requesting the series at \'{self.url}\'')
                         
             # parsing the response's json
             # we can just get result, since the only other thing is status, which should be 200

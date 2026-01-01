@@ -109,7 +109,7 @@ class Series(SharedSeriesClass):
         # making sure we got a status code 200
         if response.status_code != 200:
             raise Exception(
-                f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
+                f'Recieved status code {response.status_code} when requesting the series at \'{self.url}\'')
 
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')

@@ -6,8 +6,7 @@ from mangadl.common import SharedChapterClass, SharedSeriesClass
 from urllib import parse
 
 # these are grabbed from https://batomirrors.pages.dev/
-# bato.si bato.ing are included due to them being "v4" meaning different url structure, and website structure
-# soon there should be a bato-v4 scraper, but for now, they're not included
+# bato.si bato.ing are not included due to them being "v4" meaning different url structure, and website structure
 urls = ['ato.to', 'dto.to', 'fto.to', 'hto.to', 'jto.to', 'lto.to', 'mto.to', 'nto.to', 'vto.to', 'wto.to', 'xto.to', 'yto.to', 'vba.to', 'wba.to', 'xba.to', 'yba.to', 'zba.to', 'bato.ac', 'bato.bz', 'bato.cc', 'bato.cx', 'bato.id', 'bato.pw', 'bato.sh', 'bato.to', 'bato.vc', 'bato.day', 'bato.red', 'bato.run', 'batoto.in', 'batoto.tv', 'batotoo.com', 'batotwo.com', 'batpub.com', 'batread.com', 'battwo.com', 'bato.to', 'xbato.net', 'xbato.org', 'zbato.com', 'zbato.net', 'zbato.org', 'comiko.net', 'comiko.org', 'mangatoto.com', 'mangatoto.net', 'mangatoto.org', 'batocomic.com', 'batocomic.net', 'batocomic.org', 'readtoto.com', 'readtoto.net', 'readtoto.org', 'kuku.to', 'okok.to', 'ruru.to', 'xdxd.to']
 
 
@@ -71,7 +70,7 @@ class Series(SharedSeriesClass):
         # making sure we got a status code 200
         if response.status_code != 200:
             raise Exception(
-                f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
+                f'Recieved status code {response.status_code} when requesting the series at \'{self.url}\'')
 
         # now that we know the request went through, we parse the webpage
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
