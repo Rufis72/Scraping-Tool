@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from mangadl.scrapers import mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga, bato, tapas, comix, mangadex
+from mangadl.scrapers import bato_v4, bato, mangaread, natomanga, mangabuddy, webtoons, mangatown, onemanga, tapas, comix, mangadex
 from mangadl.common import SearchResult, generate_text_with_link, sort_search_results
 from mangadl.common import construct_chapter_not_found_image
 from mangadl.common import get_correct_output_path
@@ -73,6 +73,12 @@ def get_scraper_mappings() -> dict[str, dict[str, str or callable or type]]:
             'series_class_reference': mangadex.Series,
             'chapter_class_reference': mangadex.Chapter,
             'search_function': mangadex.search,
+        },
+        'batov4': {
+            'url': bato_v4.urls[0],
+            'series_class_reference': bato_v4.Series,
+            'chapter_class_reference': bato_v4.Chapter,
+            'search_function': bato_v4.search,
         },
     }
 
