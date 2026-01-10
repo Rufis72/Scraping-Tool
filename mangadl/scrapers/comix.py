@@ -31,8 +31,8 @@ class Chapter(SharedChapterClass):
         # first we request the series page
         response = requests.get(self.url)
 
-        # making sure we got a status code 200
-        if response.status_code != 200:
+        # making sure we got an ok response
+        if not response.ok:
             raise Exception(
                 f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
 
@@ -114,8 +114,8 @@ class Series(SharedSeriesClass):
             # requesting the url
             response = requests.get(f'https://{urls[0]}/api/v2/manga/{series_id}/chapters?limit=100&page={i}&order[number]=asc')
 
-            # making sure we got a status code 200
-            if response.status_code != 200:
+            # making sure we got an ok response
+            if not response.ok:
                 raise Exception(
                     f'Recieved status code {response.status_code} when requesting the series at \'{self.url}\'')
                         
@@ -200,8 +200,8 @@ def search(query: str, adult: bool or None = None):
     # then after that we request the search page
     query_response = requests.get(search_url, headers=headers)
 
-    # making sure we got a status code 200
-    if query_response.status_code != 200:
+    # making sure we got an ok response
+    if not query_response.ok:
         raise Exception(f'Recieved status code {query_response.status_code} when searching \'{query}\' on {urls[0]}')
 
     # now we parse the json

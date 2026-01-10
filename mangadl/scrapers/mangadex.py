@@ -38,8 +38,8 @@ class Chapter(SharedChapterClass):
         }
         response = requests.get(api_url_request, headers=headers)
 
-        # making sure we got a status code 200
-        if response.status_code != 200:
+        # making sure we got an ok response
+        if not response.ok:
             raise Exception(
                 f'Recieved status code {response.status_code} when requesting the chapter at \'{self.url}\'')
         
