@@ -17,7 +17,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'mangadl = mangadl.__main__:run',
+            'mangadl = mangadl.main:run',
         ],
     },
 )
