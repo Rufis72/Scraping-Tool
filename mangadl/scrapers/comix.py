@@ -71,7 +71,23 @@ class Chapter(SharedChapterClass):
         # we request the url here, and if it's a redirect, we parse that url and return it, otherwise we just parse self.url
         # but since if we don't get redirected, the url will be the same, we just use response.url for everything
         response = requests.get(self.url)
-        return(f'{int(response.url.rstrip('/').strip('-')[-1]):04d}')
+
+        # now we construct the name
+        # we have a whole section for this, since otherwise it gets pretty unreadable fast
+        # first we turn the number in the url into a float
+        chapter_number_float = float(response.url.rstrip('/').split('-')[-1])
+
+        # now we make a variable for the output name
+        output = f'{chapter_number_float.__floor__():04d}'
+
+        # then if the chapter is like 145.5, we add the .5 bit back
+        # since it wouldn't be there since we're currently flooring it
+        if chapter_number_float % 1 != 0:
+            # the lstrip is to turn 0.5 into .5
+            output += str(chapter_number_float % 1).lstrip('0')
+
+        # now we just return our output
+        return output
 
 
 class Series(SharedSeriesClass):
