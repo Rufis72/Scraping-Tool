@@ -2,12 +2,12 @@ from PyPDF2 import PdfMerger, PdfWriter
 from reportlab.pdfgen import canvas
 import os
 from mangadl import common
-from mangadl.common import sort_strings_naturally
+from mangadl.common import sort_strings_naturally, SharedChapterFormatterClass, SharedSeriesFormatterClass
 import math
 import shutil
 from PIL import Image
 
-class PDFWebtoonChapter:
+class PDFWebtoonChapter(SharedChapterFormatterClass):
     '''A class for saving a chapter as a PDF, formatted as a webtoon'''
     def __init__(self, content_path: str):
         ''':param content_path: The path to the directory with the images in it'''
@@ -19,10 +19,7 @@ class PDFWebtoonChapter:
         # getting the list of all images
         # what we do is we go through every file in the directory and check if it's a img file
         # if it is, we add it to the list of filenames
-        image_filenames = []
-        for filename in sorted(os.listdir(self.content_path)):
-            if common.is_image_filename(filename):
-                image_filenames.append(os.path.join(self.content_path, filename))
+        image_filenames = self.get_images()
 
         # ending the function and telling the user that formatting failed for this chapter if the passed content path was empty
         # we just make an empty pdf to satisfy the Series pdf merging

@@ -5,6 +5,7 @@ import requests
 import random
 import string
 import re
+import shutil
 
 # just general variables for image filetypes
 image_file_extensions_with_periods = ['.png', '.jpeg', '.jpg', '.gif', '.webp', '.heif', '.avif', '.heic', '.jxl', '.tiff', '.tif']
@@ -334,6 +335,65 @@ class SharedChapterClass:
         # if the previous attempt didn't work, we just return the last part in the url
         else:
             return parse.urlparse(self.url).path.strip('/').split('/')[-1].replace('_', '-')
+        
+
+class SharedChapterFormatterClass:
+    '''A class for saving a chapter as a PDF'''
+    def __init__(self, content_path: str):
+        ''':param content_path: The path to the directory with the images in it'''
+        self.content_path = content_path
+
+    def get_images(self) -> list[str]:
+        '''Gets all the images in self.content_path'''
+        # making a variable to store the image filenames
+        image_filenames = []
+
+        # going through everything in the self.content_path directory and if it's an img, adding it to our list
+        for filename in sorted(os.listdir(self.content_path)):
+            if is_image_filename(filename):
+                image_filenames.append(os.path.join(self.content_path, filename))
+
+        # returning the images we got
+        return image_filenames
+
+    def format(self, output_path: str):
+        '''Formats a chapter's images as a PDF and saves it to the output path.
+        :param output_path: The path to the file where the PDF will be saved. If the path to a directory is passed, it will create a output.pdf file'''
+        raise Exception(f'You need to make a format method!')
+
+
+class SharedSeriesFormatterClass:
+    '''A class for saving a series as a PDF'''
+    def __init__(self, content_path: str):
+        ''':param content_path: The path to the directory with the chapter directorys with images in it'''
+        self.content_path = content_path
+
+
+    def make_temp_directory(self, output_path) -> str:
+        '''Creates a temporary direction to do formatting work in
+        :param output_path: The place to create the temp directory in
+        :returns: The absolute path to the temp directory'''
+        # first we construct the path to the temp directory
+        temp_path = os.path.join(output_path, f'.temp-{generate_random_string(32)}')
+
+        # then we make the directory
+        os.mkdir(temp_path)
+
+        # finally we return the path
+        return temp_path
+    
+    def get_chapters(self) -> list[str]:
+        '''Returns all the directories in the content_path directory'''
+        return sorted([d for d in os.listdir(self.content_path) if os.path.isdir(os.path.join(self.content_path, d))])
+
+
+    def format(self, output_path: str, chapters_per_pdf: int = None, pdf_chapter_naming_scheme: str = '[series_name] chapter [chapter_start]-[chapter_end]', series_name: str = ''):
+        '''Formats a serie's images as a PDF and saves it to the output path
+        :param chapters_per_pdf: How many chapters to put per PDF. It will raise an error if output_path is not a directory, as this will output multiple files.
+        :param pdf_chapter_naming_scheme: How to format the file names. You can put [series_name], [chapter_start] and [chapter_end] to sub in as special values. [series_name] is the name of the series, [chapter_start] is the chapter that that pdf started at. If using chapters_per_pdf, it will be that, otherwise it will be 0. [chapter_end] is the same, but in this case the chapter it ended at
+        :param output_path: The path to the file where the PDF will be saved. If the path to a directory is passed, it will create a output.pdf file'''
+        raise Exception('You need to make a format method!')
+    
 
 
 def get_correct_output_path(output_path: str, name: str) -> str:
