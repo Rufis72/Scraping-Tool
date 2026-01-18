@@ -8,6 +8,7 @@ from mangadl import common
 import re
 import difflib
 from mangadl.formatters.pdf import manga as pdf_manga, webtoon as pdf_webtoon
+from mangadl.formatters.epub import manga as epub_manga
 import argparse
 
 
@@ -381,12 +382,18 @@ def format(args):
     format_imports = {
         'pdf': {
             'manga': { # this section is for chapters vs whole series, as determined by is_series.
-                True: pdf_manga.PDFMangaSeries,
-                False: pdf_manga.PDFMangaChapter,
+                True: pdf_manga.PDFMangaSeries, # is is_series, is true
+                False: pdf_manga.PDFMangaChapter, # if is_series is false
             },
             'webtoon': {
                 True: pdf_webtoon.PDFWebtoonSeries,
                 False: pdf_webtoon.PDFWebtoonChapter,
+            },
+        },
+        'epub': {
+            'manga': {
+                True: epub_manga.EPUBMangaSeries,
+                False: epub_manga.EPUBMangaChapter,
             },
         },
     }

@@ -12,7 +12,8 @@ setup(
         'beautifulsoup4>=4.13.4',
         'pillow>=12.0.0',
         'PyPDF2>=3.0.1',
-        'reportlab>=4.4.4',       
+        'reportlab>=4.4.4',
+        'ebooklib>=0.20'
     ],
     packages=find_packages(),
     entry_points={
