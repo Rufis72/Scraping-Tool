@@ -344,7 +344,7 @@ class SharedChapterFormatterClass:
         self.content_path = content_path
 
     def get_images(self) -> list[str]:
-        '''Gets all the images in self.content_path'''
+        '''Gets all the images in self.content_path and returns their absolute paths'''
         # making a variable to store the image filenames
         image_filenames = []
 
